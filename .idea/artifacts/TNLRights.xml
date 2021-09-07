@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TNLRights">
+    <output-path>$USER_HOME$/Desktop/Coding/PluginProjects/Plugins</output-path>
+    <root id="archive" name="TNLRights.jar">
+      <element id="module-output" name="TNLRights" />
+    </root>
+  </artifact>
+</component>

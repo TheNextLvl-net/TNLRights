@@ -1,0 +1,6 @@
+name: "TNLRights"
+version: "1.0"
+main: "net.nonswag.tnl.rights.Rights"
+website: "https://www.thenextlvl.net"
+api-version: "1.13"
+depend: ["TNLListener"]
