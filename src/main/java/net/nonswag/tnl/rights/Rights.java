@@ -2,12 +2,12 @@ package net.nonswag.tnl.rights;
 
 import net.nonswag.tnl.listener.api.command.CommandManager;
 import net.nonswag.tnl.listener.api.event.EventManager;
+import net.nonswag.tnl.listener.api.plugin.TNLPlugin;
 import net.nonswag.tnl.rights.api.Permissions;
 import net.nonswag.tnl.rights.commands.RightsCommand;
 import net.nonswag.tnl.rights.listener.ConnectionListener;
-import org.bukkit.plugin.java.JavaPlugin;
 
-public class Rights extends JavaPlugin {
+public class Rights extends TNLPlugin {
 
     @Override
     public void onEnable() {
