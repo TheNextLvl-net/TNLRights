@@ -3,13 +3,13 @@ package net.nonswag.tnl.rights.api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.nonswag.tnl.listener.api.config.JsonConfig;
+import net.nonswag.tnl.listener.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public class Permissions extends JsonConfig {
+public class Permissions extends JsonFile {
 
     @Nonnull
     private static final Permissions instance = new Permissions();
