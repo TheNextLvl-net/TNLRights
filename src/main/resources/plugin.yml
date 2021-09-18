@@ -4,3 +4,4 @@ main: "net.nonswag.tnl.rights.Rights"
 website: "https://www.thenextlvl.net"
 api-version: "1.13"
 depend: ["TNLListener"]
+author: "NonSwag"
