@@ -8,14 +8,14 @@ import net.nonswag.tnl.rights.listener.ConnectionListener;
 public class Rights extends TNLPlugin {
 
     @Override
-    public void onEnable() {
-        getCommandManager().registerCommands(new RightsCommand());
+    public void enable() {
+        getCommandManager().registerCommand(new RightsCommand());
         getEventManager().registerListener(new ConnectionListener());
         Permissions.getInstance().loadAll();
     }
 
     @Override
-    public void onDisable() {
+    public void disable() {
         Permissions.getInstance().exportAll();
     }
 }
