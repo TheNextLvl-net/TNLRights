@@ -3,7 +3,7 @@ package net.nonswag.tnl.rights.api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.nonswag.tnl.listener.api.file.formats.JsonFile;
+import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 
 import javax.annotation.Nonnull;
