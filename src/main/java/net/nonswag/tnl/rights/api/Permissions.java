@@ -18,7 +18,7 @@ public class Permissions extends JsonFile {
     private final HashMap<UUID, List<String>> permissions = new HashMap<>();
 
     private Permissions() {
-        super("plugins/Rights", "permissions.json");
+        super("plugins/Rights", "permissions.csv");
     }
 
     @Nonnull
@@ -28,7 +28,8 @@ public class Permissions extends JsonFile {
 
     @Nonnull
     public List<String> getPermissions(@Nonnull UUID uuid) {
-        return getPermissions().getOrDefault(uuid, new ArrayList<>());
+        if (!getPermissions().containsKey(uuid)) getPermissions().put(uuid, new ArrayList<>());
+        return getPermissions().get(uuid);
     }
 
     public void setPermissions(@Nonnull TNLPlayer player, @Nonnull List<String> permissions) {
@@ -45,13 +46,13 @@ public class Permissions extends JsonFile {
     }
 
     public void exportAll() {
-        JsonObject root = getJsonElement().getAsJsonObject();
+        JsonObject root = new JsonObject();
         for (UUID uuid : getPermissions().keySet()) {
-            root.remove(uuid.toString());
             JsonArray array = new JsonArray();
             for (String permission : getPermissions(uuid)) array.add(permission);
             root.add(uuid.toString(), array);
         }
+        setJsonElement(root);
         save();
     }
 
@@ -61,12 +62,11 @@ public class Permissions extends JsonFile {
         for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
             try {
                 UUID uuid = UUID.fromString(entry.getKey());
-                List<String> rights = new ArrayList<>();
                 if (entry.getValue().isJsonArray()) {
-                    JsonArray array = entry.getValue().getAsJsonArray();
-                    for (JsonElement element : array) rights.add(element.getAsString());
+                    List<String> rights = new ArrayList<>();
+                    for (JsonElement element : entry.getValue().getAsJsonArray()) rights.add(element.getAsString());
+                    permissions.put(uuid, rights);
                 }
-                permissions.put(uuid, rights);
             } catch (Exception ignored) {
             }
         }

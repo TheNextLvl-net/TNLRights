@@ -31,6 +31,7 @@ public class RightsCommand extends TNLCommand {
                         if (args.length >= 3) {
                             if (!manager.hasPermission(args[2])) {
                                 manager.addPermission(args[2]);
+                                savePermissions(arg);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a now has §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
                         } else source.sendMessage("%prefix% §c/rights add " + arg.getName() + " §8[§6Permission§8]");
@@ -44,6 +45,7 @@ public class RightsCommand extends TNLCommand {
                         if (args.length >= 3) {
                             if (manager.hasPermission(args[2])) {
                                 manager.removePermission(args[2]);
+                                savePermissions(arg);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a no longer has §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
                         } else source.sendMessage("%prefix% §c/rights remove " + arg.getName() + " §8[§6Permission§8]");
@@ -89,5 +91,9 @@ public class RightsCommand extends TNLCommand {
             }
         }
         return suggestions;
+    }
+
+    private void savePermissions(@Nonnull TNLPlayer player) {
+        net.nonswag.tnl.rights.api.Permissions.getInstance().setPermissions(player, player.getPermissionManager().getPermissions());
     }
 }
