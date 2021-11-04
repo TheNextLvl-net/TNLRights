@@ -94,13 +94,13 @@ public class RightsCommand extends TNLCommand {
                 for (OfflinePlayer all : Bukkit.getOfflinePlayers()) suggestions.add(all.getName());
             }
         } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("remove")) {
+            if (args[0].equalsIgnoreCase("remove") && !args[1].isEmpty()) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                 if (arg != null) suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
-            } else if (args[0].equalsIgnoreCase("add")) {
+            } else if (args[0].equalsIgnoreCase("add") && !args[1].isEmpty()) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                 if (arg != null) suggestions.addAll(Permissions.getInstance().getDeniedPermissions(arg));
-            } else if (args[0].equalsIgnoreCase("unset")) {
+            } else if (args[0].equalsIgnoreCase("unset") && !args[1].isEmpty()) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                 if (arg != null) {
                     suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
