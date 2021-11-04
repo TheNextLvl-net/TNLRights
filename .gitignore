@@ -1,2 +1,5 @@
 # Project exclude paths
 /target/
+/TNLRights.iml/
+/src/test/
+/.idea/
