@@ -64,12 +64,12 @@ public class Permissions extends JsonFile {
 
     public void setPermissions(@Nonnull OfflinePlayer player, @Nonnull Map<String, Boolean> permissions) {
         setPermissions(player.getUniqueId(), permissions);
-        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void setPermissions(@Nonnull UUID uuid, @Nonnull Map<String, Boolean> permissions) {
         getPermissions().put(uuid, permissions);
+        TNLPlayer online = TNLPlayer.cast(uuid);
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
     }
 
     public boolean hasPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
@@ -90,32 +90,32 @@ public class Permissions extends JsonFile {
 
     public void addPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         addPermission(player.getUniqueId(), permission);
-        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void addPermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).put(permission, true);
+        TNLPlayer online = TNLPlayer.cast(uuid);
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
     }
 
     public void removePermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         removePermission(player.getUniqueId(), permission);
-        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void removePermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).put(permission, false);
+        TNLPlayer online = TNLPlayer.cast(uuid);
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
     }
 
     public void unsetPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         unsetPermission(player.getUniqueId(), permission);
-        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void unsetPermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).remove(permission);
+        TNLPlayer online = TNLPlayer.cast(uuid);
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
     }
 
     @Nonnull
