@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
+import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -63,6 +64,8 @@ public class Permissions extends JsonFile {
 
     public void setPermissions(@Nonnull OfflinePlayer player, @Nonnull Map<String, Boolean> permissions) {
         setPermissions(player.getUniqueId(), permissions);
+        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void setPermissions(@Nonnull UUID uuid, @Nonnull Map<String, Boolean> permissions) {
@@ -87,6 +90,8 @@ public class Permissions extends JsonFile {
 
     public void addPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         addPermission(player.getUniqueId(), permission);
+        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void addPermission(@Nonnull UUID uuid, @Nonnull String permission) {
@@ -95,6 +100,8 @@ public class Permissions extends JsonFile {
 
     public void removePermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         removePermission(player.getUniqueId(), permission);
+        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void removePermission(@Nonnull UUID uuid, @Nonnull String permission) {
@@ -103,6 +110,8 @@ public class Permissions extends JsonFile {
 
     public void unsetPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         unsetPermission(player.getUniqueId(), permission);
+        TNLPlayer online = TNLPlayer.cast(player.getUniqueId());
+        if (online != null) online.getPermissionManager().setPermissions(getPermissions(player));
     }
 
     public void unsetPermission(@Nonnull UUID uuid, @Nonnull String permission) {

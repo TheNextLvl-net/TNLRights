@@ -23,7 +23,7 @@ public class RightsCommand extends TNLCommand {
         String[] args = invocation.arguments();
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("add")) {
-                if (args.length >= 2) {
+                if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         if (args.length >= 3) {
@@ -35,7 +35,7 @@ public class RightsCommand extends TNLCommand {
                     } else source.sendMessage("%prefix% §c/rights add §8[§6Player§8] §8[§6Permission§8]");
                 } else source.sendMessage("%prefix% §c/rights add §8[§6Player§8] §8[§6Permission§8]");
             } else if (args[0].equalsIgnoreCase("remove")) {
-                if (args.length >= 2) {
+                if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         if (args.length >= 3) {
@@ -47,7 +47,7 @@ public class RightsCommand extends TNLCommand {
                     } else source.sendMessage("%prefix% §c/rights remove §8[§6Player§8] §8[§6Permission§8]");
                 } else source.sendMessage("%prefix% §c/rights remove §8[§6Player§8] §8[§6Permission§8]");
             } else if (args[0].equalsIgnoreCase("unset")) {
-                if (args.length >= 2) {
+                if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         if (args.length >= 3) {
@@ -59,7 +59,7 @@ public class RightsCommand extends TNLCommand {
                     } else source.sendMessage("%prefix% §c/rights unset §8[§6Player§8] §8[§6Permission§8]");
                 } else source.sendMessage("%prefix% §c/rights unset §8[§6Player§8] §8[§6Permission§8]");
             } else if (args[0].equalsIgnoreCase("list")) {
-                if (args.length >= 2) {
+                if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         List<String> allowed = Permissions.getInstance().getAllowedPermissions(arg);
@@ -93,14 +93,14 @@ public class RightsCommand extends TNLCommand {
             if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("unset")) {
                 for (OfflinePlayer all : Bukkit.getOfflinePlayers()) suggestions.add(all.getName());
             }
-        } else if (args.length == 3) {
-            if (args[0].equalsIgnoreCase("remove") && !args[1].isEmpty()) {
+        } else if (args.length == 3 && !args[1].isEmpty()) {
+            if (args[0].equalsIgnoreCase("remove")) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                 if (arg != null) suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
-            } else if (args[0].equalsIgnoreCase("add") && !args[1].isEmpty()) {
+            } else if (args[0].equalsIgnoreCase("add")) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                 if (arg != null) suggestions.addAll(Permissions.getInstance().getDeniedPermissions(arg));
-            } else if (args[0].equalsIgnoreCase("unset") && !args[1].isEmpty()) {
+            } else if (args[0].equalsIgnoreCase("unset")) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                 if (arg != null) {
                     suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
