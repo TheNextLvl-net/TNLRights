@@ -39,32 +39,33 @@ public class RightsCommand extends TNLCommand {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         if (args.length >= 3) {
-                            if (Permissions.getInstance().hasPermission(arg, args[2])) {
-                                Permissions.getInstance().removePermission(arg, args[2]);
+                            if (Permissions.getInstance().isPermissionSet(arg, args[2])) {
+                                Permissions.getInstance().unsetPermission(arg, args[2]);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a no longer has §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
                         } else source.sendMessage("%prefix% §c/rights remove " + arg.getName() + " §8[§6Permission§8]");
                     } else source.sendMessage("%prefix% §c/rights remove §8[§6Player§8] §8[§6Permission§8]");
                 } else source.sendMessage("%prefix% §c/rights remove §8[§6Player§8] §8[§6Permission§8]");
-            } else if (args[0].equalsIgnoreCase("unset")) {
+            } else if (args[0].equalsIgnoreCase("disallow")) {
                 if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         if (args.length >= 3) {
-                            if (Permissions.getInstance().containsPermission(arg, args[2])) {
-                                Permissions.getInstance().unsetPermission(arg, args[2]);
+                            if (!Permissions.getInstance().isPermissionSet(arg, args[2]) || Permissions.getInstance().hasPermission(arg, args[2])) {
+                                Permissions.getInstance().removePermission(arg, args[2]);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a no longer can use §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
-                        } else source.sendMessage("%prefix% §c/rights unset " + arg.getName() + " §8[§6Permission§8]");
-                    } else source.sendMessage("%prefix% §c/rights unset §8[§6Player§8] §8[§6Permission§8]");
-                } else source.sendMessage("%prefix% §c/rights unset §8[§6Player§8] §8[§6Permission§8]");
+                        } else source.sendMessage("%prefix% §c/rights disallow " + arg.getName() + " §8[§6Permission§8]");
+                    } else source.sendMessage("%prefix% §c/rights disallow §8[§6Player§8] §8[§6Permission§8]");
+                } else source.sendMessage("%prefix% §c/rights disallow §8[§6Player§8] §8[§6Permission§8]");
             } else if (args[0].equalsIgnoreCase("list")) {
                 if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
                     if (arg != null) {
                         List<String> allowed = Permissions.getInstance().getAllowedPermissions(arg);
                         List<String> denied = Permissions.getInstance().getDeniedPermissions(arg);
-                        source.sendMessage("%prefix%§7 Allowed Permissions §8(§a" + allowed.size() + "§8): §6" + String.join("§8, §6", allowed));
+                        String amount = arg.isOp() ? "∞" : String.valueOf(allowed.size());
+                        source.sendMessage("%prefix%§7 Allowed Permissions §8(§a" + amount + "§8): §6" + String.join("§8, §6", allowed));
                         source.sendMessage("%prefix%§7 Denied Permissions §8(§a" + denied.size() + "§8): §6" + String.join("§8, §6", denied));
                     } else source.sendMessage("%prefix% §c/rights list §8[§6Player§8]");
                 } else source.sendMessage("%prefix% §c/rights list §8[§6Player§8]");
@@ -74,7 +75,7 @@ public class RightsCommand extends TNLCommand {
 
     private void help(@Nonnull CommandSource source) {
         source.sendMessage("%prefix% §c/rights remove §8[§6Player§8] §8[§6Permission§8]");
-        source.sendMessage("%prefix% §c/rights unset §8[§6Player§8] §8[§6Permission§8]");
+        source.sendMessage("%prefix% §c/rights disallow §8[§6Player§8] §8[§6Permission§8]");
         source.sendMessage("%prefix% §c/rights add §8[§6Player§8] §8[§6Permission§8]");
         source.sendMessage("%prefix% §c/rights list §8[§6Player§8]");
     }
@@ -87,25 +88,27 @@ public class RightsCommand extends TNLCommand {
         if (args.length <= 1) {
             suggestions.add("add");
             suggestions.add("remove");
-            suggestions.add("unset");
+            suggestions.add("disallow");
             suggestions.add("list");
         } else if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("unset")) {
-                for (OfflinePlayer all : Bukkit.getOfflinePlayers()) suggestions.add(all.getName());
+            if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("disallow")) {
+                for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
+                    suggestions.add(all.getName());
+                }
             }
         } else if (args.length == 3 && !args[1].isEmpty()) {
             if (args[0].equalsIgnoreCase("remove")) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
-                if (arg != null) suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
+                if (arg != null) {
+                    suggestions.addAll(Permissions.getInstance().getDeniedPermissions(arg));
+                    suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
+                }
             } else if (args[0].equalsIgnoreCase("add")) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
-                if (arg != null) suggestions.addAll(Permissions.getInstance().getDeniedPermissions(arg));
-            } else if (args[0].equalsIgnoreCase("unset")) {
+                if (arg != null) suggestions.addAll(Permissions.getInstance().getAllPermissions(arg));
+            } else if (args[0].equalsIgnoreCase("disallow")) {
                 OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
-                if (arg != null) {
-                    suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
-                    suggestions.addAll(Permissions.getInstance().getDeniedPermissions(arg));
-                }
+                if (arg != null) suggestions.addAll(Permissions.getInstance().getAllowedPermissions(arg));
             }
         }
         return suggestions;

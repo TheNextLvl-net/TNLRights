@@ -80,11 +80,11 @@ public class Permissions extends JsonFile {
         return getPermissions(uuid).getOrDefault(permission, false);
     }
 
-    public boolean containsPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
-        return containsPermission(player.getUniqueId(), permission);
+    public boolean isPermissionSet(@Nonnull OfflinePlayer player, @Nonnull String permission) {
+        return isPermissionSet(player.getUniqueId(), permission);
     }
 
-    public boolean containsPermission(@Nonnull UUID uuid, @Nonnull String permission) {
+    public boolean isPermissionSet(@Nonnull UUID uuid, @Nonnull String permission) {
         return getPermissions(uuid).containsKey(permission);
     }
 
@@ -163,6 +163,25 @@ public class Permissions extends JsonFile {
             }
         }
         getPermissions().putAll(permissions);
+    }
+
+    @Nonnull
+    public List<String> getAllPermissions(@Nonnull OfflinePlayer exclude) {
+        List<String> permissions = getAllPermissions();
+        permissions.removeAll(getAllowedPermissions(exclude));
+        return permissions;
+    }
+
+    @Nonnull
+    public List<String> getAllPermissions() {
+        List<String> permissions = new ArrayList<>();
+        for (Map<String, Boolean> map : getPermissions().values()) {
+            for (String permission : map.keySet()) {
+                if (permissions.contains(permission)) continue;
+                permissions.add(permission);
+            }
+        }
+        return permissions;
     }
 
     @Nonnull
