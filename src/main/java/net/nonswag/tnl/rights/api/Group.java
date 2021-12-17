@@ -23,7 +23,7 @@ public class Group {
     @Nonnull
     private static final HashMap<String, Group> groups = new HashMap<>();
     @Nonnull
-    public static final Group DEFAULT = new Group("default");
+    public static final Group DEFAULT = new Group("default").register();
 
     @Nonnull
     private final String name;
@@ -125,6 +125,13 @@ public class Group {
         for (UUID member : this.members) members.add(member.toString());
         root.add("members", members);
         file.save();
+    }
+
+    public boolean delete() {
+        if (equals(DEFAULT)) return false;
+        file.delete();
+        if (isRegistered()) unregister();
+        return true;
     }
 
     @Nonnull
@@ -269,7 +276,7 @@ public class Group {
 
     public static void loadAll() {
         File groups = new File("plugins/Rights/Groups");
-        File[] files = groups.listFiles((file, name) -> name.length() > 5 && name.matches("[\\w]*.json"));
+        File[] files = groups.listFiles((file, name) -> name.length() > 5 && !name.equals("default.json") && name.matches("[\\w]*.json"));
         if (files == null) return;
         for (File file : files) new Group(file.getName().substring(0, file.getName().length() - 5)).register();
     }
