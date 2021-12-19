@@ -7,6 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.core.api.logger.Logger;
+import net.nonswag.tnl.listener.TNLListener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.scoreboard.Team;
 import org.bukkit.Bukkit;
@@ -41,7 +42,7 @@ public class Group {
         if (!name.matches("[\\w]*")) throw new IllegalArgumentException("'" + name.replaceAll("[\\w]*", "") + "'");
         this.name = name;
         this.file = new JsonFile("plugins/Rights/Groups", getName() + ".json");
-        this.team = new Team(loadId());
+        this.team = name.equals("default") ? Team.NONE : new Team(loadId());
         load();
     }
 
@@ -62,7 +63,7 @@ public class Group {
 
     private int loadId() {
         JsonObject root = file.getJsonElement().getAsJsonObject();
-        if (!root.has("id")) return Team.NONE.getId();
+        if (!root.has("id")) return Team.NONE.getId() - getGroups().size() + 1;
         return root.get("id").getAsInt();
     }
 
@@ -204,10 +205,19 @@ public class Group {
     }
 
     public void addPlayer(@Nonnull UUID player) {
-        if (isMember(player)) return;
+        get(player).removePlayer(player);
         members.add(player);
         updatePermissions(player);
         updateMember(player);
+    }
+
+    public void removePlayer(@Nonnull OfflinePlayer player) {
+        removePlayer(player.getUniqueId());
+    }
+
+    public void removePlayer(@Nonnull UUID player) {
+        members.remove(player);
+        if (!equals(DEFAULT)) DEFAULT.addPlayer(player);
     }
 
     public boolean isMember(@Nonnull OfflinePlayer player) {
@@ -215,6 +225,7 @@ public class Group {
     }
 
     public boolean isMember(@Nonnull UUID player) {
+        if (equals(DEFAULT) && !hasGroup(player)) return true;
         return members.contains(player);
     }
 
@@ -224,6 +235,10 @@ public class Group {
 
     public void updatePermissions() {
         for (UUID member : members) updatePermissions(member);
+    }
+
+    public void updatePermissions(@Nonnull OfflinePlayer member) {
+        updatePermissions(member.getUniqueId());
     }
 
     public void updatePermissions(@Nonnull UUID member) {
@@ -246,11 +261,18 @@ public class Group {
         for (UUID member : members) updateMember(member);
     }
 
+    public void updatePlayers() {
+        for (TNLPlayer all : TNLListener.getInstance().getOnlinePlayers()) updateMember(all);
+    }
+
+    public void updateMember(@Nonnull OfflinePlayer member) {
+        updateMember(member.getUniqueId());
+    }
+
     public void updateMember(@Nonnull UUID member) {
         if (!isMember(member)) return;
         TNLPlayer player = TNLPlayer.cast(member);
-        if (player == null) return;
-        if (player.getTeam().getId() > getTeam().getId()) player.setTeam(getTeam());
+        if (player != null) player.setTeam(getTeam());
     }
 
     @Nonnull
@@ -268,6 +290,26 @@ public class Group {
     @Nullable
     public static Group get(@Nonnull String name) {
         return groups.get(name);
+    }
+
+    @Nonnull
+    public static Group get(@Nonnull OfflinePlayer player) {
+        return get(player.getUniqueId());
+    }
+
+    @Nonnull
+    public static Group get(@Nonnull UUID player) {
+        for (Group group : Group.getGroups()) if (group.members.contains(player)) return group;
+        return DEFAULT;
+    }
+
+    public static boolean hasGroup(@Nonnull OfflinePlayer player) {
+        return hasGroup(player.getUniqueId());
+    }
+
+    public static boolean hasGroup(@Nonnull UUID player) {
+        for (Group group : Group.getGroups()) if (group.members.contains(player)) return true;
+        return false;
     }
 
     public static void exportAll() {
