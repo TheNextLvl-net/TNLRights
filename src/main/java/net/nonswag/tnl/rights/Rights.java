@@ -11,10 +11,17 @@ import net.nonswag.tnl.rights.commands.GroupCommand;
 import net.nonswag.tnl.rights.commands.RightsCommand;
 import net.nonswag.tnl.rights.listener.ConnectionListener;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class Rights extends TNLPlugin {
+
+    @Nullable
+    private static Rights instance = null;
 
     @Override
     public void enable() {
+        setInstance(this);
         Group.loadAll();
         Permissions.loadAll();
         getCommandManager().registerCommand(new RightsCommand());
@@ -32,5 +39,15 @@ public class Rights extends TNLPlugin {
     public void disable() {
         Group.exportAll();
         Permissions.exportAll();
+    }
+
+    @Nonnull
+    public static Rights getInstance() {
+        assert instance != null;
+        return instance;
+    }
+
+    public static void setInstance(@Nonnull Rights instance) {
+        Rights.instance = instance;
     }
 }
