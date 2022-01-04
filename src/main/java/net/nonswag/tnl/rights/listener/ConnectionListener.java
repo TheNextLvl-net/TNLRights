@@ -12,8 +12,8 @@ public class ConnectionListener implements Listener {
 
     @EventHandler
     public void onJoin(@Nonnull TNLPlayerJoinEvent event) {
-        event.getPlayer().getPermissionManager().setPermissions(Permissions.getPermissions(event.getPlayer()));
-        Group group = Group.get(event.getPlayer());
+        event.getPlayer().permissionManager().setPermissions(Permissions.getPermissions(event.getPlayer().bukkit()));
+        Group group = Group.get(event.getPlayer().bukkit());
         group.updateMember(event.getPlayer().getUniqueId());
         group.updatePermissions(event.getPlayer().getUniqueId());
     }

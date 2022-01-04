@@ -64,7 +64,7 @@ public class Permissions {
     public static void setPermissions(@Nonnull UUID uuid, @Nonnull Map<String, Boolean> permissions) {
         getPermissions().put(uuid, permissions);
         TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
+        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
     public static boolean hasPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
@@ -90,7 +90,7 @@ public class Permissions {
     public static void addPermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).put(permission, true);
         TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
+        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
     public static void removePermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
@@ -100,7 +100,7 @@ public class Permissions {
     public static void removePermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).put(permission, false);
         TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
+        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
     public static void unsetPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
@@ -110,7 +110,7 @@ public class Permissions {
     public static void unsetPermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).remove(permission);
         TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.getPermissionManager().setPermissions(getPermissions(online));
+        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
     @Nonnull

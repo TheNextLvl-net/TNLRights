@@ -7,12 +7,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.core.api.logger.Logger;
-import net.nonswag.tnl.listener.TNLListener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.scoreboard.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -246,13 +246,13 @@ public class Group {
         TNLPlayer player = TNLPlayer.cast(member);
         if (player == null) return;
         for (String permission : getAllowedPermissions()) {
-            if (!player.getPermissionManager().isPermissionSet(permission) || !Permissions.isPermissionSet(member, permission)) {
-                player.getPermissionManager().addPermission(permission);
+            if (!player.permissionManager().isPermissionSet(permission) || !Permissions.isPermissionSet(member, permission)) {
+                player.permissionManager().addPermission(permission);
             }
         }
         for (String permission : getDeniedPermissions()) {
-            if (!player.getPermissionManager().isPermissionSet(permission) || !Permissions.isPermissionSet(member, permission)) {
-                player.getPermissionManager().removePermission(permission);
+            if (!player.permissionManager().isPermissionSet(permission) || !Permissions.isPermissionSet(member, permission)) {
+                player.permissionManager().removePermission(permission);
             }
         }
     }
@@ -262,7 +262,7 @@ public class Group {
     }
 
     public void updatePlayers() {
-        for (TNLPlayer all : TNLListener.getInstance().getOnlinePlayers()) updateMember(all);
+        for (Player all : Bukkit.getOnlinePlayers()) updateMember(all);
     }
 
     public void updateMember(@Nonnull OfflinePlayer member) {
@@ -272,7 +272,7 @@ public class Group {
     public void updateMember(@Nonnull UUID member) {
         if (!isMember(member)) return;
         TNLPlayer player = TNLPlayer.cast(member);
-        if (player != null) player.setTeam(getTeam());
+        if (player != null) player.scoreboardManager().setTeam(getTeam());
     }
 
     @Nonnull

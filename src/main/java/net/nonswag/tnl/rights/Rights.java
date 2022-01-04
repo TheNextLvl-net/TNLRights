@@ -28,9 +28,9 @@ public class Rights extends TNLPlugin {
         getCommandManager().registerCommand(new GroupCommand());
         getEventManager().registerListener(new ConnectionListener());
         for (TNLPlayer all : TNLListener.getInstance().getOnlinePlayers()) {
-            Group group = Group.get(all);
-            group.updateMember(all);
-            group.updatePermissions(all);
+            Group group = Group.get(all.bukkit());
+            group.updateMember(all.bukkit());
+            group.updatePermissions(all.bukkit());
         }
         if (Settings.AUTO_UPDATER.getValue()) new PluginUpdate(this).downloadUpdate();
     }
