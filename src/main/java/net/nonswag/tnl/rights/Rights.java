@@ -32,7 +32,9 @@ public class Rights extends TNLPlugin {
             group.updateMember(all.bukkit());
             group.updatePermissions(all.bukkit());
         }
-        if (Settings.AUTO_UPDATER.getValue()) new PluginUpdate(this).downloadUpdate();
+        async(() -> {
+            if (Settings.AUTO_UPDATER.getValue()) new PluginUpdate(this).downloadUpdate();
+        });
     }
 
     @Override
