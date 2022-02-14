@@ -67,6 +67,14 @@ public class Permissions {
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
+    public static boolean hasPermissions(@Nonnull OfflinePlayer player) {
+        return hasPermissions(player.getUniqueId());
+    }
+
+    public static boolean hasPermissions(@Nonnull UUID uuid) {
+        return getPermissions().containsKey(uuid) && !getPermissions(uuid).isEmpty();
+    }
+
     public static boolean hasPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
         return hasPermission(player.getUniqueId(), permission);
     }
