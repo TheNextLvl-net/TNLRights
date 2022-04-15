@@ -36,7 +36,7 @@ public class GroupCommand extends TNLCommand {
                                 if (args.length >= 4) {
                                     OfflinePlayer player = Bukkit.getOfflinePlayerIfCached(args[3]);
                                     if (player != null) {
-                                        if (group.isMember(player)) {
+                                        if (!group.isDefault() && group.isMember(player)) {
                                             group.removePlayer(player);
                                             source.sendMessage("%prefix% §aRemoved §6" + player.getName() + "§a from group §6" + group.getName());
                                         } else source.sendMessage("%prefix% §cNothing could be changed");
@@ -55,7 +55,7 @@ public class GroupCommand extends TNLCommand {
                                 if (args.length >= 4) {
                                     OfflinePlayer player = Bukkit.getOfflinePlayerIfCached(args[3]);
                                     if (player != null) {
-                                        if (!group.isMember(player)) {
+                                        if (group.isDefault() || !group.isMember(player)) {
                                             group.addPlayer(player);
                                             source.sendMessage("%prefix% §aAdded §6" + player.getName() + "§a to group §6" + group.getName());
                                         } else source.sendMessage("%prefix% §cNothing could be changed");
@@ -206,8 +206,10 @@ public class GroupCommand extends TNLCommand {
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("members")) {
-                if (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("list")) {
+                if (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("list")) {
                     for (Group group : Group.getGroups()) suggestions.add(group.getName());
+                } else if (args[1].equalsIgnoreCase("remove")) {
+                    for (Group group : Group.getGroups()) if (!group.isDefault()) suggestions.add(group.getName());
                 }
             } else if (args[0].equalsIgnoreCase("color")) {
                 for (ChatColor color : ChatColor.values()) suggestions.add(color.name());
@@ -220,18 +222,14 @@ public class GroupCommand extends TNLCommand {
             if (args[0].equalsIgnoreCase("members")) {
                 if (args[1].equalsIgnoreCase("add")) {
                     Group group = Group.get(args[2]);
-                    if (group != null) {
-                        for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
-                            if (!group.isMember(all) && all.getName() != null) suggestions.add(all.getName());
-                        }
+                    if (group != null) for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
+                        if (!group.isMember(all) && all.getName() != null) suggestions.add(all.getName());
                     }
                 } else if (args[1].equalsIgnoreCase("remove")) {
                     Group group = Group.get(args[2]);
-                    if (group != null) {
-                        for (UUID member : group.getMembers()) {
-                            OfflinePlayer player = Bukkit.getOfflinePlayer(member);
-                            if (player.getName() != null) suggestions.add(player.getName());
-                        }
+                    if (group != null && !group.isDefault()) for (UUID member : group.getMembers()) {
+                        OfflinePlayer player = Bukkit.getOfflinePlayer(member);
+                        if (player.getName() != null) suggestions.add(player.getName());
                     }
                 }
             } else if (args[0].equalsIgnoreCase("rights")) {

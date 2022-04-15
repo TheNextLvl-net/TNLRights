@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.Getter;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.core.api.logger.Logger;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
@@ -24,8 +25,38 @@ public class Group {
     @Nonnull
     private static final HashMap<String, Group> groups = new HashMap<>();
     @Nonnull
-    public static final Group DEFAULT = new Group("default").register();
+    public static final Group DEFAULT = new Group("default") {
+        @Nonnull
+        @Override
+        public List<UUID> getMembers() {
+            List<UUID> members = new ArrayList<>();
+            for (OfflinePlayer all : Bukkit.getOfflinePlayers()) if (!hasGroup(all)) members.add(all.getUniqueId());
+            return members;
+        }
 
+        @Override
+        public boolean isMember(@Nonnull UUID player) {
+            return !hasGroup(player);
+        }
+
+        @Override
+        public boolean delete() {
+            return false;
+        }
+
+        @Override
+        public void removePlayer(@Nonnull UUID player) {
+        }
+
+        @Override
+        public void addPlayer(@Nonnull UUID player) {
+            get(player).removePlayer(player);
+            updatePermissions(player);
+            updateMember(player);
+        }
+    }.register();
+
+    @Getter
     @Nonnull
     private final String name;
     @Nonnull
@@ -34,31 +65,17 @@ public class Group {
     private final List<UUID> members = new ArrayList<>();
     @Nonnull
     private final JsonFile file;
+    @Getter
     @Nonnull
     private final Team team;
 
     public Group(@Nonnull String name) {
         if (name.isEmpty()) throw new IllegalArgumentException("name is empty");
-        if (!name.matches("[\\w]*")) throw new IllegalArgumentException("'" + name.replaceAll("[\\w]*", "") + "'");
+        if (!name.matches("\\w*")) throw new IllegalArgumentException("'" + name.replaceAll("\\w*", "") + "'");
         this.name = name;
         this.file = new JsonFile("plugins/Rights/Groups", getName() + ".json");
         this.team = name.equals("default") ? Team.NONE : new Team(loadId());
         load();
-    }
-
-    @Nonnull
-    public String getName() {
-        return name;
-    }
-
-    @Nonnull
-    private JsonFile getFile() {
-        return file;
-    }
-
-    @Nonnull
-    public Team getTeam() {
-        return team;
     }
 
     private int loadId() {
@@ -94,20 +111,20 @@ public class Group {
         for (JsonElement permission : perms.getAsJsonArray("denied")) {
             this.permissions.put(permission.getAsString(), false);
         }
-        if (!root.has("members") || !root.get("members").isJsonArray()) root.add("members", new JsonArray());
-        for (JsonElement member : root.getAsJsonArray("members")) {
-            try {
-                OfflinePlayer player = Bukkit.getOfflinePlayerIfCached(member.getAsString());
-                if (player != null) addPlayer(player);
-                else addPlayer(UUID.fromString(member.getAsString()));
-            } catch (Exception ignored) {
+        if (!isDefault()) {
+            if (!root.has("members") || !root.get("members").isJsonArray()) root.add("members", new JsonArray());
+            for (JsonElement member : root.getAsJsonArray("members")) {
+                try {
+                    addPlayer(UUID.fromString(member.getAsString()));
+                } catch (Exception ignored) {
+                }
             }
         }
         export();
     }
 
     public void export() {
-        JsonObject root = file.getJsonElement().getAsJsonObject();
+        JsonObject root = new JsonObject();
         root.addProperty("prefix", getTeam().getPrefix());
         root.addProperty("suffix", getTeam().getSuffix());
         root.addProperty("color", getTeam().getColor().name());
@@ -122,14 +139,16 @@ public class Group {
         permissions.add("allowed", allowed);
         permissions.add("denied", denied);
         root.add("permissions", permissions);
-        JsonArray members = new JsonArray();
-        for (UUID member : this.members) members.add(member.toString());
-        root.add("members", members);
+        if (!isDefault()) {
+            JsonArray members = new JsonArray();
+            for (UUID member : this.members) members.add(member.toString());
+            root.add("members", members);
+        }
+        file.setJsonElement(root);
         file.save();
     }
 
     public boolean delete() {
-        if (equals(DEFAULT)) return false;
         file.delete();
         if (isRegistered()) unregister();
         return true;
@@ -217,7 +236,7 @@ public class Group {
 
     public void removePlayer(@Nonnull UUID player) {
         members.remove(player);
-        if (!equals(DEFAULT)) DEFAULT.addPlayer(player);
+        get(player).updateMember(player);
     }
 
     public boolean isMember(@Nonnull OfflinePlayer player) {
@@ -225,7 +244,6 @@ public class Group {
     }
 
     public boolean isMember(@Nonnull UUID player) {
-        if (equals(DEFAULT) && !hasGroup(player)) return true;
         return members.contains(player);
     }
 
@@ -234,7 +252,7 @@ public class Group {
     }
 
     public void updatePermissions() {
-        for (UUID member : members) updatePermissions(member);
+        for (UUID member : getMembers()) updatePermissions(member);
     }
 
     public void updatePermissions(@Nonnull OfflinePlayer member) {
@@ -258,7 +276,7 @@ public class Group {
     }
 
     public void updateMembers() {
-        for (UUID member : members) updateMember(member);
+        for (UUID member : getMembers()) updateMember(member);
     }
 
     public void updatePlayers() {
@@ -273,6 +291,10 @@ public class Group {
         if (!isMember(member)) return;
         TNLPlayer player = TNLPlayer.cast(member);
         if (player != null) player.scoreboardManager().setTeam(getTeam());
+    }
+
+    public final boolean isDefault() {
+        return equals(DEFAULT);
     }
 
     @Nonnull
@@ -290,6 +312,11 @@ public class Group {
     @Nullable
     public static Group get(@Nonnull String name) {
         return groups.get(name);
+    }
+
+    @Nonnull
+    public static Group get(@Nonnull TNLPlayer player) {
+        return get(player.getUniqueId());
     }
 
     @Nonnull
@@ -318,7 +345,7 @@ public class Group {
 
     public static void loadAll() {
         File groups = new File("plugins/Rights/Groups");
-        File[] files = groups.listFiles((file, name) -> name.length() > 5 && !name.equals("default.json") && name.matches("[\\w]*.json"));
+        File[] files = groups.listFiles((file, name) -> name.length() > 5 && !name.equals("default.json") && name.matches("\\w*.json"));
         if (files == null) return;
         for (File file : files) new Group(file.getName().substring(0, file.getName().length() - 5)).register();
     }

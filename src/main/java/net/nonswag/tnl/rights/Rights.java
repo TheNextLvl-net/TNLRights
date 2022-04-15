@@ -10,6 +10,7 @@ import net.nonswag.tnl.rights.api.Permissions;
 import net.nonswag.tnl.rights.commands.GroupCommand;
 import net.nonswag.tnl.rights.commands.RightsCommand;
 import net.nonswag.tnl.rights.listener.ConnectionListener;
+import net.nonswag.tnl.rights.utils.Placeholders;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,6 +25,7 @@ public class Rights extends TNLPlugin {
         setInstance(this);
         Group.loadAll();
         Permissions.loadAll();
+        Placeholders.init();
         getCommandManager().registerCommand(new RightsCommand());
         getCommandManager().registerCommand(new GroupCommand());
         getEventManager().registerListener(new ConnectionListener());
