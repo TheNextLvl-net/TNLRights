@@ -79,8 +79,9 @@ public class Group {
     }
 
     private int loadId() {
+        if (isDefault()) return Integer.MAX_VALUE;
         JsonObject root = file.getJsonElement().getAsJsonObject();
-        if (!root.has("id")) return Team.NONE.getId() - getGroups().size() + 1;
+        if (!root.has("id")) return Team.NONE.getId() - (getGroups().size() + 1);
         return root.get("id").getAsInt();
     }
 
@@ -128,7 +129,7 @@ public class Group {
         root.addProperty("prefix", getTeam().getPrefix());
         root.addProperty("suffix", getTeam().getSuffix());
         root.addProperty("color", getTeam().getColor().name());
-        root.addProperty("id", getTeam().getId());
+        if (!isDefault()) root.addProperty("id", getTeam().getId());
         JsonObject permissions = new JsonObject();
         JsonArray allowed = new JsonArray();
         JsonArray denied = new JsonArray();
