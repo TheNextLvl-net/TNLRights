@@ -35,5 +35,8 @@ public class GroupListener implements Listener {
             if (all.equals(event.getSource())) continue;
             all.messenger().sendMessage(key, new Placeholder("source", source), new Placeholder("member", target), new Placeholder("group", event.getGroup().getName()));
         }
+        if (!event.getSource().isConsole()) {
+            event.getSource().console().sendMessage(key, new Placeholder("source", source), new Placeholder("member", target), new Placeholder("group", event.getGroup().getName()));
+        }
     }
 }

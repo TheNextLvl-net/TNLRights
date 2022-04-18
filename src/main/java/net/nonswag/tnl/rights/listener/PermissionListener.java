@@ -33,5 +33,9 @@ public class PermissionListener implements Listener {
             all.messenger().sendMessage("%prefix% §7" + source + "§8: §6" + target + " §8- §6"+
                     event.getPermission() + " §8(§a" + event.getType().name().toLowerCase() + "§8)");
         }
+        if (!event.getSource().isConsole()) {
+            event.getSource().console().sendMessage("%prefix% §7" + source + "§8: §6" + target + " §8- §6"+
+                    event.getPermission() + " §8(§a" + event.getType().name().toLowerCase() + "§8)");
+        }
     }
 }

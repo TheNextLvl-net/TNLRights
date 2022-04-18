@@ -20,15 +20,15 @@ public class Messages {
 
     private static void initEnglish() {
         MessageFile messages = Message.getEnglish();
-        messages.setDefault(MEMBER_ADDED, "%prefix% §6%source%§a added §6%member%§a to group §6%group%");
-        messages.setDefault(MEMBER_REMOVED, "%prefix% §6%source%§a removed §6%member%§a from group §6%group%");
+        messages.setDefault(MEMBER_ADDED, "%prefix% §3§o%source%§b§o added §3§o%member%§b§o to group §3§o%group%");
+        messages.setDefault(MEMBER_REMOVED, "%prefix% §3§o%source%§b§o removed §3§o%member%§b§o from group §3§o%group%");
         messages.save();
     }
 
     private static void initGerman() {
         MessageFile messages = Message.getGerman();
-        messages.setDefault(MEMBER_ADDED, "%prefix% §6%member%§a wurde von §6%source% in die gruppe §6%group%§a hinzugefügt");
-        messages.setDefault(MEMBER_REMOVED, "%prefix% §6%member%§a wurde von §6%source% aus der gruppe §6%group%§a entfernt");
+        messages.setDefault(MEMBER_ADDED, "%prefix% §3§o%member%§b§o wurde von §3§o%source%§b§o in die gruppe §3§o%group%§b§o hinzugefügt");
+        messages.setDefault(MEMBER_REMOVED, "%prefix% §3§o%member%§b§o wurde von §3§o%source%§b§o aus der gruppe §3§o%group%§b§o entfernt");
         messages.save();
     }
 }
