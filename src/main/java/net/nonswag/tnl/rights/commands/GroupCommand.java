@@ -90,7 +90,61 @@ public class GroupCommand extends TNLCommand {
                     source.sendMessage("%prefix% §c/group members list §8[§6Group§8]");
                 }
             } else if (args[0].equalsIgnoreCase("rights")) {
-                source.sendMessage("%prefix% §cGroup rights are not available at the moment");
+                if (args.length >= 2) {
+                    Group group = args.length >= 3 ? Group.get(args[2]) : null;
+                    String permission = args.length >= 4 ? args[3] : null;
+                    if (args[1].equalsIgnoreCase("disallow")) {
+                        if (group != null) {
+                            if (permission != null) {
+                                if (!group.isPermissionSet(permission) || group.hasPermission(permission)) {
+                                    group.removePermission(permission, source);
+                                    source.sendMessage("%prefix% §6" + group.getName() + "§a no longer can use §6" + permission + "§a permission");
+                                } else source.sendMessage("%prefix% §cNothing could be changed");
+                            } else {
+                                source.sendMessage("%prefix% §c/group rights disallow " + group.getName() + " §8[§6Permission§8]");
+                            }
+                        } else source.sendMessage("%prefix% §c/group rights disallow §8[§6Group§8] §8[§6Permission§8]");
+                    } else if (args[1].equalsIgnoreCase("remove")) {
+                        if (group != null) {
+                            if (permission != null) {
+                                if (group.isPermissionSet(permission)) {
+                                    group.unsetPermission(permission, source);
+                                    source.sendMessage("%prefix% §6" + group.getName() + "§a no longer has §6" + permission + "§a permission");
+                                } else source.sendMessage("%prefix% §cNothing could be changed");
+                            } else {
+                                source.sendMessage("%prefix% §c/group rights remove " + group.getName() + " §8[§6Permission§8]");
+                            }
+                        } else source.sendMessage("%prefix% §c/group rights remove §8[§6Group§8] §8[§6Permission§8]");
+                    } else if (args[1].equalsIgnoreCase("add")) {
+                        if (group != null) {
+                            if (permission != null) {
+                                if (!group.hasPermission(permission)) {
+                                    group.addPermission(permission, source);
+                                    source.sendMessage("%prefix% §6" + group.getName() + "§a now has §6" + permission + "§a permission");
+                                } else source.sendMessage("%prefix% §cNothing could be changed");
+                            } else {
+                                source.sendMessage("%prefix% §c/group rights add " + group.getName() + " §8[§6Permission§8]");
+                            }
+                        } else source.sendMessage("%prefix% §c/group rights add §8[§6Group§8] §8[§6Permission§8]");
+                    } else if (args[1].equalsIgnoreCase("list")) {
+                        if (group != null) {
+                            List<String> allowed = group.getAllowedPermissions();
+                            List<String> denied = group.getDeniedPermissions();
+                            source.sendMessage("%prefix%§7 Allowed Permissions §8(§a" + allowed.size() + "§8): §6" + String.join("§8, §6", allowed));
+                            source.sendMessage("%prefix%§7 Denied Permissions §8(§a" + denied.size() + "§8): §6" + String.join("§8, §6", denied));
+                        } else source.sendMessage("%prefix% §c/group rights list §8[§6Group§8]");
+                    } else {
+                        source.sendMessage("%prefix% §c/group rights disallow §8[§6Group§8] §8[§6Permission§8]");
+                        source.sendMessage("%prefix% §c/group rights remove §8[§6Group§8] §8[§6Permission§8]");
+                        source.sendMessage("%prefix% §c/group rights add §8[§6Group§8] §8[§6Permission§8]");
+                        source.sendMessage("%prefix% §c/group rights list §8[§6Group§8]");
+                    }
+                } else {
+                    source.sendMessage("%prefix% §c/group rights disallow §8[§6Group§8] §8[§6Permission§8]");
+                    source.sendMessage("%prefix% §c/group rights remove §8[§6Group§8] §8[§6Permission§8]");
+                    source.sendMessage("%prefix% §c/group rights add §8[§6Group§8] §8[§6Permission§8]");
+                    source.sendMessage("%prefix% §c/group rights list §8[§6Group§8]");
+                }
             } else if (args[0].equalsIgnoreCase("prefix")) {
                 if (args.length >= 2) {
                     Group group = Group.get(args[1]);
@@ -214,8 +268,17 @@ public class GroupCommand extends TNLCommand {
             } else if (args[0].equalsIgnoreCase("color")) {
                 for (ChatColor color : ChatColor.values()) suggestions.add(color.name());
             } else if (args[0].equalsIgnoreCase("rights")) {
-                if (args[1].equalsIgnoreCase("list") || args[1].equalsIgnoreCase("disallow") || args[1].equalsIgnoreCase("remove") || args[1].equalsIgnoreCase("add")) {
+                if (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("disallow")) {
                     for (Group group : Group.getGroups()) suggestions.add(group.getName());
+                }
+                if (args[1].equalsIgnoreCase("remove")) {
+                    for (Group group : Group.getGroups()) if (group.hasPermissions()) suggestions.add(group.getName());
+                }
+                if (args[1].equalsIgnoreCase("list")) {
+                    for (Group group : Group.getGroups()) {
+                        if (!group.hasPermissions() && group.getDeniedPermissions().isEmpty()) continue;
+                        suggestions.add(group.getName());
+                    }
                 }
             }
         } else if (args.length == 4) {

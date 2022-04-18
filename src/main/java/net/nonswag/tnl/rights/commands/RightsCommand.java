@@ -91,13 +91,16 @@ public class RightsCommand extends TNLCommand {
             suggestions.add("disallow");
             suggestions.add("list");
         } else if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("add")) {
-                for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
-                    suggestions.add(all.getName());
-                }
-            } else if (args[0].equalsIgnoreCase("list") || args[0].equalsIgnoreCase("remove") || args[0].equalsIgnoreCase("disallow")) {
+            if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("disallow")) {
+                for (OfflinePlayer all : Bukkit.getOfflinePlayers()) suggestions.add(all.getName());
+            } else if (args[0].equalsIgnoreCase("remove")) {
                 for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
                     if (Permissions.hasPermissions(all)) suggestions.add(all.getName());
+                }
+            } else if (args[0].equalsIgnoreCase("list")) {
+                for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
+                    if (!Permissions.hasPermissions(all) && Permissions.getDeniedPermissions(all).isEmpty()) continue;
+                    suggestions.add(all.getName());
                 }
             }
         } else if (args.length == 3 && !args[1].isEmpty()) {

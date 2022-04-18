@@ -195,6 +195,10 @@ public class Group {
         return permissions;
     }
 
+    public boolean hasPermissions() {
+        return !permissions.isEmpty();
+    }
+
     public boolean hasPermission(@Nonnull String permission) {
         return permissions.getOrDefault(permission, false);
     }
