@@ -2,6 +2,7 @@ package net.nonswag.tnl.rights;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.TNLListener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.plugin.PluginUpdate;
@@ -35,10 +36,11 @@ public class Rights extends TNLPlugin {
         Permissions.loadAll();
         Placeholders.init();
         Messages.init();
-        JsonObject root = getConfiguration().getJsonElement().getAsJsonObject();
+        JsonFile configuration = new JsonFile("plugins/Rights", "config.json");
+        JsonObject root = configuration.getJsonElement().getAsJsonObject();
         if (!root.has("safety-feature")) {
             root.addProperty("safety-feature", isSafetyFeature());
-            getConfiguration().save();
+            configuration.save();
         } else safetyFeature = root.get("safety-feature").getAsBoolean();
         getCommandManager().registerCommand(new RightsCommand());
         getCommandManager().registerCommand(new GroupCommand());
