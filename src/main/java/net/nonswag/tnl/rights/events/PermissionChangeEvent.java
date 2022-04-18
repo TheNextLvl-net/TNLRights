@@ -1,6 +1,7 @@
 package net.nonswag.tnl.rights.events;
 
 import lombok.Getter;
+import net.nonswag.tnl.core.api.command.CommandSource;
 import net.nonswag.tnl.listener.api.event.TNLEvent;
 
 import javax.annotation.Nonnull;
@@ -12,15 +13,18 @@ public abstract class PermissionChangeEvent extends TNLEvent {
     private final String permission;
     @Nonnull
     private final Type type;
+    @Nonnull
+    private final CommandSource source;
 
-    protected PermissionChangeEvent(@Nonnull String permission, @Nonnull Type type) {
+    protected PermissionChangeEvent(@Nonnull String permission, @Nonnull Type type, @Nonnull CommandSource source) {
         this.permission = permission;
         this.type = type;
+        this.source = source;
     }
 
     @Override
-    protected boolean denyCancellation() {
-        return true;
+    public boolean isCancelled() {
+        return false;
     }
 
     public enum Type {

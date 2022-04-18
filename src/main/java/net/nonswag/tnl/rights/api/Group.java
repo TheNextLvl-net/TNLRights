@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import net.nonswag.tnl.core.api.command.CommandSource;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.core.api.logger.Logger;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
@@ -49,14 +50,7 @@ public class Group {
         }
 
         @Override
-        public void removePlayer(@Nonnull UUID player) {
-        }
-
-        @Override
-        public void addPlayer(@Nonnull UUID player) {
-            get(player).removePlayer(player);
-            updatePermissions(player);
-            updateMember(player);
+        public void removePlayer(@Nonnull UUID player, @Nullable CommandSource source) {
         }
     }.register();
 
@@ -120,7 +114,7 @@ public class Group {
             if (!root.has("members") || !root.get("members").isJsonArray()) root.add("members", new JsonArray());
             for (JsonElement member : root.getAsJsonArray("members")) {
                 try {
-                    addPlayer(UUID.fromString(member.getAsString()));
+                    addPlayer(UUID.fromString(member.getAsString()), null);
                 } catch (Exception ignored) {
                 }
             }
@@ -209,43 +203,49 @@ public class Group {
         return permissions.containsKey(permission);
     }
 
-    public void addPermission(@Nonnull String permission) {
+    public void addPermission(@Nonnull String permission, @Nullable CommandSource source) {
         permissions.put(permission, true);
-        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT).call();
+        if (source != null) {
+            new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT, source).call();
+        }
         updatePermissions();
     }
 
-    public void removePermission(@Nonnull String permission) {
+    public void removePermission(@Nonnull String permission, @Nullable CommandSource source) {
         permissions.put(permission, false);
-        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE).call();
+        if (source != null) {
+            new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE, source).call();
+        }
         updatePermissions();
     }
 
-    public void unsetPermission(@Nonnull String permission) {
+    public void unsetPermission(@Nonnull String permission, @Nullable CommandSource source) {
         permissions.remove(permission);
-        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET).call();
+        if (source != null) {
+            new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET, source).call();
+        }
         updatePermissions();
     }
 
-    public void addPlayer(@Nonnull OfflinePlayer player) {
-        addPlayer(player.getUniqueId());
+    public void addPlayer(@Nonnull OfflinePlayer player, @Nullable CommandSource source) {
+        addPlayer(player.getUniqueId(), source);
     }
 
-    public void addPlayer(@Nonnull UUID player) {
-        get(player).removePlayer(player);
-        members.add(player);
-        new GroupMemberAddEvent(this, player).call();
+    public void addPlayer(@Nonnull UUID player, @Nullable CommandSource source) {
+        get(player).removePlayer(player, source);
+        if (!isDefault()) members.add(player);
+        if (source != null) new GroupMemberAddEvent(this, player, source).call();
         updatePermissions(player);
         updateMember(player);
     }
 
-    public void removePlayer(@Nonnull OfflinePlayer player) {
-        removePlayer(player.getUniqueId());
+    public void removePlayer(@Nonnull OfflinePlayer player, @Nullable CommandSource source) {
+        removePlayer(player.getUniqueId(), source);
     }
 
-    public void removePlayer(@Nonnull UUID player) {
+    public void removePlayer(@Nonnull UUID player, @Nullable CommandSource source) {
         members.remove(player);
-        new GroupMemberRemoveEvent(this, player).call();
+        if (source != null) new GroupMemberRemoveEvent(this, player, source).call();
         get(player).updateMember(player);
     }
 

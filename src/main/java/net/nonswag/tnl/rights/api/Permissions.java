@@ -3,6 +3,7 @@ package net.nonswag.tnl.rights.api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.nonswag.tnl.core.api.command.CommandSource;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.rights.events.PermissionChangeEvent;
@@ -11,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 public class Permissions {
@@ -93,35 +95,41 @@ public class Permissions {
         return getPermissions(uuid).containsKey(permission);
     }
 
-    public static void addPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
-        addPermission(player.getUniqueId(), permission);
+    public static void addPermission(@Nonnull OfflinePlayer player, @Nonnull String permission, @Nullable CommandSource source) {
+        addPermission(player.getUniqueId(), permission, source);
     }
 
-    public static void addPermission(@Nonnull UUID uuid, @Nonnull String permission) {
+    public static void addPermission(@Nonnull UUID uuid, @Nonnull String permission, @Nullable CommandSource source) {
         getPermissions(uuid).put(permission, true);
-        new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.GRANT).call();
+        if (source != null) {
+            new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.GRANT, source).call();
+        }
         TNLPlayer online = TNLPlayer.cast(uuid);
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
-    public static void removePermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
-        removePermission(player.getUniqueId(), permission);
+    public static void removePermission(@Nonnull OfflinePlayer player, @Nonnull String permission, @Nullable CommandSource source) {
+        removePermission(player.getUniqueId(), permission, source);
     }
 
-    public static void removePermission(@Nonnull UUID uuid, @Nonnull String permission) {
+    public static void removePermission(@Nonnull UUID uuid, @Nonnull String permission, @Nullable CommandSource source) {
         getPermissions(uuid).put(permission, false);
-        new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.REVOKE).call();
+        if (source != null) {
+            new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.REVOKE, source).call();
+        }
         TNLPlayer online = TNLPlayer.cast(uuid);
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
 
-    public static void unsetPermission(@Nonnull OfflinePlayer player, @Nonnull String permission) {
-        unsetPermission(player.getUniqueId(), permission);
+    public static void unsetPermission(@Nonnull OfflinePlayer player, @Nonnull String permission, @Nullable CommandSource source) {
+        unsetPermission(player.getUniqueId(), permission, source);
     }
 
-    public static void unsetPermission(@Nonnull UUID uuid, @Nonnull String permission) {
+    public static void unsetPermission(@Nonnull UUID uuid, @Nonnull String permission, @Nullable CommandSource source) {
         getPermissions(uuid).remove(permission);
-        new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.UNSET).call();
+        if (source != null) {
+            new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.UNSET, source).call();
+        }
         TNLPlayer online = TNLPlayer.cast(uuid);
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }

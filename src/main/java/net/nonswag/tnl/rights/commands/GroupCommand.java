@@ -37,7 +37,7 @@ public class GroupCommand extends TNLCommand {
                                     OfflinePlayer player = Bukkit.getOfflinePlayerIfCached(args[3]);
                                     if (player != null) {
                                         if (!group.isDefault() && group.isMember(player)) {
-                                            group.removePlayer(player);
+                                            group.removePlayer(player, source);
                                             source.sendMessage("%prefix% §aRemoved §6" + player.getName() + "§a from group §6" + group.getName());
                                         } else source.sendMessage("%prefix% §cNothing could be changed");
                                     } else {
@@ -56,7 +56,7 @@ public class GroupCommand extends TNLCommand {
                                     OfflinePlayer player = Bukkit.getOfflinePlayerIfCached(args[3]);
                                     if (player != null) {
                                         if (group.isDefault() || !group.isMember(player)) {
-                                            group.addPlayer(player);
+                                            group.addPlayer(player, source);
                                             source.sendMessage("%prefix% §aAdded §6" + player.getName() + "§a to group §6" + group.getName());
                                         } else source.sendMessage("%prefix% §cNothing could be changed");
                                     } else {

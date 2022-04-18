@@ -28,7 +28,7 @@ public class RightsCommand extends TNLCommand {
                     if (arg != null) {
                         if (args.length >= 3) {
                             if (!Permissions.hasPermission(arg, args[2])) {
-                                Permissions.addPermission(arg, args[2]);
+                                Permissions.addPermission(arg, args[2], source);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a now has §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
                         } else source.sendMessage("%prefix% §c/rights add " + arg.getName() + " §8[§6Permission§8]");
@@ -40,7 +40,7 @@ public class RightsCommand extends TNLCommand {
                     if (arg != null) {
                         if (args.length >= 3) {
                             if (Permissions.isPermissionSet(arg, args[2])) {
-                                Permissions.unsetPermission(arg, args[2]);
+                                Permissions.unsetPermission(arg, args[2], source);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a no longer has §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
                         } else source.sendMessage("%prefix% §c/rights remove " + arg.getName() + " §8[§6Permission§8]");
@@ -52,7 +52,7 @@ public class RightsCommand extends TNLCommand {
                     if (arg != null) {
                         if (args.length >= 3) {
                             if (!Permissions.isPermissionSet(arg, args[2]) || Permissions.hasPermission(arg, args[2])) {
-                                Permissions.removePermission(arg, args[2]);
+                                Permissions.removePermission(arg, args[2], source);
                                 source.sendMessage("%prefix% §6" + arg.getName() + "§a no longer can use §6" + args[2] + "§a permission");
                             } else source.sendMessage("%prefix% §cNothing could be changed");
                         } else source.sendMessage("%prefix% §c/rights disallow " + arg.getName() + " §8[§6Permission§8]");
