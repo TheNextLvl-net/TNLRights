@@ -10,6 +10,10 @@ import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.core.api.logger.Logger;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.scoreboard.Team;
+import net.nonswag.tnl.rights.events.PermissionChangeEvent;
+import net.nonswag.tnl.rights.events.group.GroupMemberAddEvent;
+import net.nonswag.tnl.rights.events.group.GroupMemberRemoveEvent;
+import net.nonswag.tnl.rights.events.group.GroupPermissionChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -207,16 +211,19 @@ public class Group {
 
     public void addPermission(@Nonnull String permission) {
         permissions.put(permission, true);
+        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT).call();
         updatePermissions();
     }
 
     public void removePermission(@Nonnull String permission) {
         permissions.put(permission, false);
+        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE).call();
         updatePermissions();
     }
 
     public void unsetPermission(@Nonnull String permission) {
         permissions.remove(permission);
+        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET).call();
         updatePermissions();
     }
 
@@ -227,6 +234,7 @@ public class Group {
     public void addPlayer(@Nonnull UUID player) {
         get(player).removePlayer(player);
         members.add(player);
+        new GroupMemberAddEvent(this, player).call();
         updatePermissions(player);
         updateMember(player);
     }
@@ -237,6 +245,7 @@ public class Group {
 
     public void removePlayer(@Nonnull UUID player) {
         members.remove(player);
+        new GroupMemberRemoveEvent(this, player).call();
         get(player).updateMember(player);
     }
 

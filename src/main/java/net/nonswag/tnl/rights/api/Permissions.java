@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
+import net.nonswag.tnl.rights.events.PermissionChangeEvent;
+import net.nonswag.tnl.rights.events.player.PlayerPermissionChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -97,6 +99,7 @@ public class Permissions {
 
     public static void addPermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).put(permission, true);
+        new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.GRANT).call();
         TNLPlayer online = TNLPlayer.cast(uuid);
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
@@ -107,6 +110,7 @@ public class Permissions {
 
     public static void removePermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).put(permission, false);
+        new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.REVOKE).call();
         TNLPlayer online = TNLPlayer.cast(uuid);
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
@@ -117,6 +121,7 @@ public class Permissions {
 
     public static void unsetPermission(@Nonnull UUID uuid, @Nonnull String permission) {
         getPermissions(uuid).remove(permission);
+        new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.UNSET).call();
         TNLPlayer online = TNLPlayer.cast(uuid);
         if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
     }
