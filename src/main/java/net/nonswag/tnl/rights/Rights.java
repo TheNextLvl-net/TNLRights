@@ -3,7 +3,7 @@ package net.nonswag.tnl.rights;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import net.nonswag.tnl.core.api.file.formats.JsonFile;
-import net.nonswag.tnl.listener.TNLListener;
+import net.nonswag.tnl.listener.Listener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.plugin.PluginUpdate;
 import net.nonswag.tnl.listener.api.plugin.TNLPlugin;
@@ -49,7 +49,7 @@ public class Rights extends TNLPlugin {
             getEventManager().registerListener(new PermissionListener());
             getEventManager().registerListener(new GroupListener());
         }
-        for (TNLPlayer all : TNLListener.getOnlinePlayers()) {
+        for (TNLPlayer all : Listener.getOnlinePlayers()) {
             Group group = Group.get(all.bukkit());
             group.updateMember(all.bukkit());
             group.updatePermissions(all.bukkit());

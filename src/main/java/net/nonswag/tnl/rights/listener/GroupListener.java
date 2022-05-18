@@ -2,7 +2,7 @@ package net.nonswag.tnl.rights.listener;
 
 import net.nonswag.tnl.core.api.message.Placeholder;
 import net.nonswag.tnl.core.api.message.key.MessageKey;
-import net.nonswag.tnl.listener.TNLListener;
+import net.nonswag.tnl.listener.Listener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.rights.events.group.GroupMemberAddEvent;
 import net.nonswag.tnl.rights.events.group.GroupMemberEvent;
@@ -10,11 +10,10 @@ import net.nonswag.tnl.rights.events.group.GroupMemberRemoveEvent;
 import net.nonswag.tnl.rights.utils.Messages;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 
 import javax.annotation.Nonnull;
 
-public class GroupListener implements Listener {
+public class GroupListener implements org.bukkit.event.Listener {
 
     @EventHandler
     public void onGroupMemberAdd(@Nonnull GroupMemberAddEvent event) {
@@ -30,7 +29,7 @@ public class GroupListener implements Listener {
 
     private void notifyChange(@Nonnull GroupMemberEvent event, @Nonnull MessageKey key, @Nonnull String target) {
         String source = event.getSource().isConsole() ? "Console" : event.getSource().player().getName();
-        for (TNLPlayer all : TNLListener.getOnlinePlayers()) {
+        for (TNLPlayer all : Listener.getOnlinePlayers()) {
             if (!all.permissionManager().hasPermission("tnl.rights")) continue;
             if (all.equals(event.getSource())) continue;
             all.messenger().sendMessage(key, new Placeholder("source", source), new Placeholder("member", target), new Placeholder("group", event.getGroup().getName()));
