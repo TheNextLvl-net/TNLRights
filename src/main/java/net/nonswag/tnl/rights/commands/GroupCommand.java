@@ -1,8 +1,8 @@
 package net.nonswag.tnl.rights.commands;
 
-import net.nonswag.tnl.core.api.command.CommandSource;
-import net.nonswag.tnl.core.api.command.Invocation;
-import net.nonswag.tnl.core.api.logger.Color;
+import net.nonswag.core.api.command.CommandSource;
+import net.nonswag.core.api.command.Invocation;
+import net.nonswag.core.api.logger.Color;
 import net.nonswag.tnl.listener.api.command.TNLCommand;
 import net.nonswag.tnl.rights.api.Group;
 import net.nonswag.tnl.rights.api.Permissions;

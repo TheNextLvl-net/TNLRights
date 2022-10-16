@@ -1,7 +1,7 @@
 package net.nonswag.tnl.rights.events;
 
 import lombok.Getter;
-import net.nonswag.tnl.core.api.command.CommandSource;
+import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.tnl.listener.api.event.TNLEvent;
 
 import javax.annotation.Nonnull;

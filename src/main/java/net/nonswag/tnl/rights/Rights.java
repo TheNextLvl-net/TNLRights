@@ -2,7 +2,7 @@ package net.nonswag.tnl.rights;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
-import net.nonswag.tnl.core.api.file.formats.JsonFile;
+import net.nonswag.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.Listener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.plugin.PluginUpdate;

@@ -1,7 +1,7 @@
 package net.nonswag.tnl.rights.listener;
 
-import net.nonswag.tnl.core.api.message.Placeholder;
-import net.nonswag.tnl.core.api.message.key.MessageKey;
+import net.nonswag.core.api.message.Placeholder;
+import net.nonswag.core.api.message.key.MessageKey;
 import net.nonswag.tnl.listener.Listener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.rights.events.group.GroupMemberAddEvent;
