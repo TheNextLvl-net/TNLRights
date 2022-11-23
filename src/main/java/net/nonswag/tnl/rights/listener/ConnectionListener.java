@@ -6,12 +6,13 @@ import net.nonswag.tnl.rights.api.Permissions;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public class ConnectionListener implements Listener {
 
     @EventHandler
-    public void onJoin(@Nonnull TNLPlayerJoinEvent event) {
+    public void onJoin(TNLPlayerJoinEvent event) {
         event.getPlayer().permissionManager().setPermissions(Permissions.getPermissions(event.getPlayer().bukkit()));
         Group group = Group.get(event.getPlayer().bukkit());
         group.updateMember(event.getPlayer().getUniqueId());

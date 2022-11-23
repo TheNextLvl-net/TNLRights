@@ -20,18 +20,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
 public class Group {
 
-    @Nonnull
     private static final HashMap<String, Group> groups = new HashMap<>();
-    @Nonnull
     public static final Group DEFAULT = new Group("default") {
-        @Nonnull
         @Override
         public List<UUID> getMembers() {
             List<UUID> members = new ArrayList<>();
@@ -40,7 +36,7 @@ public class Group {
         }
 
         @Override
-        public boolean isMember(@Nonnull UUID player) {
+        public boolean isMember(UUID player) {
             return !hasGroup(player);
         }
 
@@ -50,24 +46,19 @@ public class Group {
         }
 
         @Override
-        public void removePlayer(@Nonnull UUID player, @Nullable CommandSource source) {
+        public void removePlayer(UUID player, @Nullable CommandSource source) {
         }
     }.register();
 
     @Getter
-    @Nonnull
     private final String name;
-    @Nonnull
-    private final Map<String, Boolean> permissions = new HashMap<>();
-    @Nonnull
-    private final List<UUID> members = new ArrayList<>();
-    @Nonnull
-    private final JsonFile file;
     @Getter
-    @Nonnull
     private final Team team;
+    private final Map<String, Boolean> permissions = new HashMap<>();
+    private final List<UUID> members = new ArrayList<>();
+    private final JsonFile file;
 
-    public Group(@Nonnull String name) {
+    public Group(String name) {
         if (name.isEmpty()) throw new IllegalArgumentException("name is empty");
         if (!name.matches("\\w*")) throw new IllegalArgumentException("'" + name.replaceAll("\\w*", "") + "'");
         this.name = name;
@@ -153,31 +144,26 @@ public class Group {
         return true;
     }
 
-    @Nonnull
     public Group register() {
         if (isRegistered()) throw new IllegalArgumentException("Group already registered");
         groups.put(getName(), this);
         return this;
     }
 
-    @Nonnull
     public Group unregister() {
         if (!isRegistered()) throw new IllegalArgumentException("Group not registered");
         groups.remove(getName());
         return this;
     }
 
-    @Nonnull
     public Map<String, Boolean> getPermissions() {
         return ImmutableMap.copyOf(permissions);
     }
 
-    @Nonnull
     public List<UUID> getMembers() {
         return ImmutableList.copyOf(members);
     }
 
-    @Nonnull
     public List<String> getAllowedPermissions() {
         List<String> permissions = new ArrayList<>();
         this.permissions.forEach((s, b) -> {
@@ -186,7 +172,6 @@ public class Group {
         return permissions;
     }
 
-    @Nonnull
     public List<String> getDeniedPermissions() {
         List<String> permissions = new ArrayList<>();
         this.permissions.forEach((s, b) -> {
@@ -199,15 +184,15 @@ public class Group {
         return !permissions.isEmpty();
     }
 
-    public boolean hasPermission(@Nonnull String permission) {
+    public boolean hasPermission(String permission) {
         return permissions.getOrDefault(permission, false);
     }
 
-    public boolean isPermissionSet(@Nonnull String permission) {
+    public boolean isPermissionSet(String permission) {
         return permissions.containsKey(permission);
     }
 
-    public void addPermission(@Nonnull String permission, @Nullable CommandSource source) {
+    public void addPermission(String permission, @Nullable CommandSource source) {
         permissions.put(permission, true);
         if (source != null) {
             new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT, source).call();
@@ -215,7 +200,7 @@ public class Group {
         updatePermissions();
     }
 
-    public void removePermission(@Nonnull String permission, @Nullable CommandSource source) {
+    public void removePermission(String permission, @Nullable CommandSource source) {
         permissions.put(permission, false);
         if (source != null) {
             new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE, source).call();
@@ -223,7 +208,7 @@ public class Group {
         updatePermissions();
     }
 
-    public void unsetPermission(@Nonnull String permission, @Nullable CommandSource source) {
+    public void unsetPermission(String permission, @Nullable CommandSource source) {
         permissions.remove(permission);
         if (source != null) {
             new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET, source).call();
@@ -231,11 +216,11 @@ public class Group {
         updatePermissions();
     }
 
-    public void addPlayer(@Nonnull OfflinePlayer player, @Nullable CommandSource source) {
+    public void addPlayer(OfflinePlayer player, @Nullable CommandSource source) {
         addPlayer(player.getUniqueId(), source);
     }
 
-    public void addPlayer(@Nonnull UUID player, @Nullable CommandSource source) {
+    public void addPlayer(UUID player, @Nullable CommandSource source) {
         get(player).removePlayer(player, source);
         if (!isDefault()) members.add(player);
         if (source != null) new GroupMemberAddEvent(this, player, source).call();
@@ -243,21 +228,21 @@ public class Group {
         updateMember(player);
     }
 
-    public void removePlayer(@Nonnull OfflinePlayer player, @Nullable CommandSource source) {
+    public void removePlayer(OfflinePlayer player, @Nullable CommandSource source) {
         removePlayer(player.getUniqueId(), source);
     }
 
-    public void removePlayer(@Nonnull UUID player, @Nullable CommandSource source) {
+    public void removePlayer(UUID player, @Nullable CommandSource source) {
         members.remove(player);
         if (source != null) new GroupMemberRemoveEvent(this, player, source).call();
         get(player).updateMember(player);
     }
 
-    public boolean isMember(@Nonnull OfflinePlayer player) {
+    public boolean isMember(OfflinePlayer player) {
         return isMember(player.getUniqueId());
     }
 
-    public boolean isMember(@Nonnull UUID player) {
+    public boolean isMember(UUID player) {
         return members.contains(player);
     }
 
@@ -269,11 +254,11 @@ public class Group {
         for (UUID member : getMembers()) updatePermissions(member);
     }
 
-    public void updatePermissions(@Nonnull OfflinePlayer member) {
+    public void updatePermissions(OfflinePlayer member) {
         updatePermissions(member.getUniqueId());
     }
 
-    public void updatePermissions(@Nonnull UUID member) {
+    public void updatePermissions(UUID member) {
         if (!isMember(member)) return;
         TNLPlayer player = TNLPlayer.cast(member);
         if (player == null) return;
@@ -297,11 +282,11 @@ public class Group {
         for (Player all : Bukkit.getOnlinePlayers()) updateMember(all);
     }
 
-    public void updateMember(@Nonnull OfflinePlayer member) {
+    public void updateMember(OfflinePlayer member) {
         updateMember(member.getUniqueId());
     }
 
-    public void updateMember(@Nonnull UUID member) {
+    public void updateMember(UUID member) {
         if (!isMember(member)) return;
         TNLPlayer player = TNLPlayer.cast(member);
         if (player != null) player.scoreboardManager().setTeam(getTeam());
@@ -311,44 +296,39 @@ public class Group {
         return equals(DEFAULT);
     }
 
-    @Nonnull
     public static List<String> getAllPermissions() {
         List<String> permissions = new ArrayList<>();
         for (Group group : getGroups()) permissions.addAll(group.getPermissions().keySet());
         return permissions;
     }
 
-    @Nonnull
     public static List<Group> getGroups() {
         return ImmutableList.copyOf(groups.values());
     }
 
     @Nullable
-    public static Group get(@Nonnull String name) {
+    public static Group get(String name) {
         return groups.get(name);
     }
 
-    @Nonnull
-    public static Group get(@Nonnull TNLPlayer player) {
+    public static Group get(TNLPlayer player) {
         return get(player.getUniqueId());
     }
 
-    @Nonnull
-    public static Group get(@Nonnull OfflinePlayer player) {
+    public static Group get(OfflinePlayer player) {
         return get(player.getUniqueId());
     }
 
-    @Nonnull
-    public static Group get(@Nonnull UUID player) {
+    public static Group get(UUID player) {
         for (Group group : Group.getGroups()) if (group.members.contains(player)) return group;
         return DEFAULT;
     }
 
-    public static boolean hasGroup(@Nonnull OfflinePlayer player) {
+    public static boolean hasGroup(OfflinePlayer player) {
         return hasGroup(player.getUniqueId());
     }
 
-    public static boolean hasGroup(@Nonnull UUID player) {
+    public static boolean hasGroup(UUID player) {
         for (Group group : Group.getGroups()) if (group.members.contains(player)) return true;
         return false;
     }

@@ -1,16 +1,13 @@
 package net.nonswag.tnl.rights.utils;
 
+import net.nonswag.core.api.annotation.FieldsAreNonnullByDefault;
 import net.nonswag.core.api.message.Message;
 import net.nonswag.core.api.message.key.MessageKey;
 
-import javax.annotation.Nonnull;
-
+@FieldsAreNonnullByDefault
 public class Messages {
-
-    @Nonnull
-    public static MessageKey MEMBER_ADDED = new MessageKey("group-member-added");
-    @Nonnull
-    public static MessageKey MEMBER_REMOVED = new MessageKey("group-member-removed");
+    public static MessageKey MEMBER_ADDED = new MessageKey("group-member-added").register();
+    public static MessageKey MEMBER_REMOVED = new MessageKey("group-member-removed").register();
 
     public static void init() {
         initEnglish();

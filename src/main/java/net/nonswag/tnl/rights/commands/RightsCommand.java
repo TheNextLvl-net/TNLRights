@@ -1,5 +1,6 @@
 package net.nonswag.tnl.rights.commands;
 
+import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.core.api.command.Invocation;
 import net.nonswag.tnl.listener.api.command.TNLCommand;
@@ -7,10 +8,12 @@ import net.nonswag.tnl.rights.api.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class RightsCommand extends TNLCommand {
 
     public RightsCommand() {
@@ -18,7 +21,7 @@ public class RightsCommand extends TNLCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Invocation invocation) {
+    protected void execute(Invocation invocation) {
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
         if (args.length >= 1) {
@@ -73,16 +76,15 @@ public class RightsCommand extends TNLCommand {
         } else help(source);
     }
 
-    private void help(@Nonnull CommandSource source) {
+    private void help(CommandSource source) {
         source.sendMessage("%prefix% §c/rights remove §8[§6Player§8] §8[§6Permission§8]");
         source.sendMessage("%prefix% §c/rights disallow §8[§6Player§8] §8[§6Permission§8]");
         source.sendMessage("%prefix% §c/rights add §8[§6Player§8] §8[§6Permission§8]");
         source.sendMessage("%prefix% §c/rights list §8[§6Player§8]");
     }
 
-    @Nonnull
     @Override
-    protected List<String> suggest(@Nonnull Invocation invocation) {
+    protected List<String> suggest(Invocation invocation) {
         String[] args = invocation.arguments();
         List<String> suggestions = new ArrayList<>();
         if (args.length <= 1) {

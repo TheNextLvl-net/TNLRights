@@ -1,5 +1,6 @@
 package net.nonswag.tnl.rights.commands;
 
+import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.core.api.command.Invocation;
 import net.nonswag.core.api.logger.Color;
@@ -10,12 +11,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class GroupCommand extends TNLCommand {
 
     public GroupCommand() {
@@ -23,7 +26,7 @@ public class GroupCommand extends TNLCommand {
     }
 
     @Override
-    protected void execute(@Nonnull Invocation invocation) {
+    protected void execute(Invocation invocation) {
         CommandSource source = invocation.source();
         String[] args = invocation.arguments();
         if (args.length >= 1) {
@@ -211,7 +214,7 @@ public class GroupCommand extends TNLCommand {
         } else help(source);
     }
 
-    private void help(@Nonnull CommandSource source) {
+    private void help(CommandSource source) {
         source.sendMessage("%prefix% §c/group members remove §8[§6Group§8] §8[§6Member§8]");
         source.sendMessage("%prefix% §c/group members add §8[§6Group§8] §8[§6Player§8]");
         source.sendMessage("%prefix% §c/group members list §8[§6Group§8]");
@@ -227,9 +230,8 @@ public class GroupCommand extends TNLCommand {
         source.sendMessage("%prefix% §c/group list");
     }
 
-    @Nonnull
     @Override
-    protected List<String> suggest(@Nonnull Invocation invocation) {
+    protected List<String> suggest(Invocation invocation) {
         String[] args = invocation.arguments();
         List<String> suggestions = new ArrayList<>();
         if (args.length <= 1) {

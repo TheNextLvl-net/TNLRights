@@ -2,6 +2,8 @@ package net.nonswag.tnl.rights;
 
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import net.nonswag.core.api.annotation.FieldsAreNullableByDefault;
+import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.Listener;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
@@ -18,15 +20,11 @@ import net.nonswag.tnl.rights.listener.PermissionListener;
 import net.nonswag.tnl.rights.utils.Messages;
 import net.nonswag.tnl.rights.utils.Placeholders;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 @Getter
+@FieldsAreNullableByDefault
+@MethodsReturnNonnullByDefault
 public class Rights extends TNLPlugin {
-
-    @Nullable
     private static Rights instance = null;
-
     private boolean safetyFeature = true;
 
     @Override
@@ -65,7 +63,6 @@ public class Rights extends TNLPlugin {
         Permissions.exportAll();
     }
 
-    @Nonnull
     public static Rights getInstance() {
         assert instance != null;
         return instance;
