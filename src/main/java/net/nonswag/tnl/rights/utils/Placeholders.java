@@ -2,7 +2,7 @@ package net.nonswag.tnl.rights.utils;
 
 import net.nonswag.core.api.message.Placeholder;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
-import net.nonswag.tnl.rights.api.Group;
+import net.nonswag.tnl.rights.api.group.Group;
 
 public final class Placeholders {
 

@@ -4,7 +4,7 @@ import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.core.api.command.Invocation;
 import net.nonswag.tnl.listener.api.command.TNLCommand;
-import net.nonswag.tnl.rights.api.Permissions;
+import net.nonswag.tnl.rights.api.permissions.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 

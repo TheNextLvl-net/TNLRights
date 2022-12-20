@@ -1,11 +1,12 @@
-package net.nonswag.tnl.rights.api;
+package net.nonswag.tnl.rights.api.group;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Getter;
+import net.nonswag.core.api.annotation.FieldsAreNonnullByDefault;
+import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.core.api.file.formats.JsonFile;
 import net.nonswag.core.api.logger.Logger;
@@ -18,12 +19,15 @@ import net.nonswag.tnl.rights.events.group.GroupPermissionChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.util.*;
 
+@FieldsAreNonnullByDefault
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class Group {
 
     private static final HashMap<String, Group> groups = new HashMap<>();
@@ -31,7 +35,7 @@ public class Group {
         @Override
         public List<UUID> getMembers() {
             List<UUID> members = new ArrayList<>();
-            for (OfflinePlayer all : Bukkit.getOfflinePlayers()) if (!hasGroup(all)) members.add(all.getUniqueId());
+            for (OfflinePlayer all : Bukkit.getOfflinePlayers()) if (isMember(all)) members.add(all.getUniqueId());
             return members;
         }
 
@@ -95,20 +99,11 @@ public class Group {
         JsonObject perms = root.getAsJsonObject("permissions");
         if (!perms.has("allowed") || !perms.get("allowed").isJsonObject()) perms.add("allowed", new JsonArray());
         if (!perms.has("denied") || !perms.get("denied").isJsonObject()) perms.add("denied", new JsonArray());
-        for (JsonElement permission : perms.getAsJsonArray("allowed")) {
-            this.permissions.put(permission.getAsString(), true);
-        }
-        for (JsonElement permission : perms.getAsJsonArray("denied")) {
-            this.permissions.put(permission.getAsString(), false);
-        }
+        perms.getAsJsonArray("allowed").forEach(permission -> this.permissions.put(permission.getAsString(), true));
+        perms.getAsJsonArray("denied").forEach(permission -> this.permissions.put(permission.getAsString(), false));
         if (!isDefault()) {
             if (!root.has("members") || !root.get("members").isJsonArray()) root.add("members", new JsonArray());
-            for (JsonElement member : root.getAsJsonArray("members")) {
-                try {
-                    addPlayer(UUID.fromString(member.getAsString()), null);
-                } catch (Exception ignored) {
-                }
-            }
+            root.getAsJsonArray("members").forEach(member -> addPlayer(UUID.fromString(member.getAsString()), null));
         }
         export();
     }
@@ -120,18 +115,18 @@ public class Group {
         root.addProperty("color", getTeam().getColor().name());
         if (!isDefault()) root.addProperty("id", getTeam().getId());
         JsonObject permissions = new JsonObject();
-        JsonArray allowed = new JsonArray();
-        JsonArray denied = new JsonArray();
-        this.permissions.forEach((s, b) -> {
-            if (b) allowed.add(s);
-            else denied.add(s);
+        JsonArray allowedPermissions = new JsonArray();
+        JsonArray deniedPermissions = new JsonArray();
+        this.permissions.forEach((permission, allowed) -> {
+            if (allowed) allowedPermissions.add(permission);
+            else deniedPermissions.add(permission);
         });
-        permissions.add("allowed", allowed);
-        permissions.add("denied", denied);
+        permissions.add("allowed", allowedPermissions);
+        permissions.add("denied", deniedPermissions);
         root.add("permissions", permissions);
         if (!isDefault()) {
             JsonArray members = new JsonArray();
-            for (UUID member : this.members) members.add(member.toString());
+            this.members.forEach(member -> members.add(members.toString()));
             root.add("members", members);
         }
         file.setJsonElement(root);
@@ -166,16 +161,16 @@ public class Group {
 
     public List<String> getAllowedPermissions() {
         List<String> permissions = new ArrayList<>();
-        this.permissions.forEach((s, b) -> {
-            if (b) permissions.add(s);
+        this.permissions.forEach((permission, allowed) -> {
+            if (allowed) permissions.add(permission);
         });
         return permissions;
     }
 
     public List<String> getDeniedPermissions() {
         List<String> permissions = new ArrayList<>();
-        this.permissions.forEach((s, b) -> {
-            if (!b) permissions.add(s);
+        this.permissions.forEach((permission, allowed) -> {
+            if (!allowed) permissions.add(permission);
         });
         return permissions;
     }
@@ -194,26 +189,20 @@ public class Group {
 
     public void addPermission(String permission, @Nullable CommandSource source) {
         permissions.put(permission, true);
-        if (source != null) {
-            new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT, source).call();
-        }
-        updatePermissions();
+        if (source == null) return;
+        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT, source).call();
     }
 
     public void removePermission(String permission, @Nullable CommandSource source) {
         permissions.put(permission, false);
-        if (source != null) {
-            new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE, source).call();
-        }
-        updatePermissions();
+        if (source == null) return;
+        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE, source).call();
     }
 
     public void unsetPermission(String permission, @Nullable CommandSource source) {
         permissions.remove(permission);
-        if (source != null) {
-            new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET, source).call();
-        }
-        updatePermissions();
+        if (source == null) return;
+        new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET, source).call();
     }
 
     public void addPlayer(OfflinePlayer player, @Nullable CommandSource source) {
@@ -224,7 +213,6 @@ public class Group {
         get(player).removePlayer(player, source);
         if (!isDefault()) members.add(player);
         if (source != null) new GroupMemberAddEvent(this, player, source).call();
-        updatePermissions(player);
         updateMember(player);
     }
 
@@ -250,39 +238,19 @@ public class Group {
         return groups.containsKey(getName());
     }
 
-    public void updatePermissions() {
-        for (UUID member : getMembers()) updatePermissions(member);
-    }
-
-    public void updatePermissions(OfflinePlayer member) {
-        updatePermissions(member.getUniqueId());
-    }
-
-    public void updatePermissions(UUID member) {
-        if (!isMember(member)) return;
-        TNLPlayer player = TNLPlayer.cast(member);
-        if (player == null) return;
-        for (String permission : getAllowedPermissions()) {
-            if (!player.permissionManager().isPermissionSet(permission) || !Permissions.isPermissionSet(member, permission)) {
-                player.permissionManager().addPermission(permission);
-            }
-        }
-        for (String permission : getDeniedPermissions()) {
-            if (!player.permissionManager().isPermissionSet(permission) || !Permissions.isPermissionSet(member, permission)) {
-                player.permissionManager().removePermission(permission);
-            }
-        }
-    }
-
     public void updateMembers() {
-        for (UUID member : getMembers()) updateMember(member);
+        getMembers().forEach(this::updateMember);
     }
 
     public void updatePlayers() {
-        for (Player all : Bukkit.getOnlinePlayers()) updateMember(all);
+        Bukkit.getOnlinePlayers().forEach(this::updateMember);
     }
 
     public void updateMember(OfflinePlayer member) {
+        updateMember(member.getUniqueId());
+    }
+
+    public void updateMember(TNLPlayer member) {
         updateMember(member.getUniqueId());
     }
 
@@ -298,7 +266,7 @@ public class Group {
 
     public static List<String> getAllPermissions() {
         List<String> permissions = new ArrayList<>();
-        for (Group group : getGroups()) permissions.addAll(group.getPermissions().keySet());
+        getGroups().forEach(group -> permissions.addAll(group.getPermissions().keySet()));
         return permissions;
     }
 
@@ -334,7 +302,7 @@ public class Group {
     }
 
     public static void exportAll() {
-        for (Group group : getGroups()) group.export();
+        getGroups().forEach(Group::export);
     }
 
     public static void loadAll() {

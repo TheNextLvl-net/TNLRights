@@ -1,8 +1,8 @@
 package net.nonswag.tnl.rights.listener;
 
 import net.nonswag.tnl.listener.events.TNLPlayerJoinEvent;
-import net.nonswag.tnl.rights.api.Group;
-import net.nonswag.tnl.rights.api.Permissions;
+import net.nonswag.tnl.rights.api.group.Group;
+import net.nonswag.tnl.rights.api.permissions.Permissions;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -13,9 +13,7 @@ public class ConnectionListener implements Listener {
 
     @EventHandler
     public void onJoin(TNLPlayerJoinEvent event) {
-        event.getPlayer().permissionManager().setPermissions(Permissions.getPermissions(event.getPlayer().bukkit()));
-        Group group = Group.get(event.getPlayer().bukkit());
-        group.updateMember(event.getPlayer().getUniqueId());
-        group.updatePermissions(event.getPlayer().getUniqueId());
+        event.getPlayer().permissionManager().setPermissions(Permissions.getPermissions(event.getPlayer()));
+        Group.get(event.getPlayer()).updateMember(event.getPlayer().getUniqueId());
     }
 }

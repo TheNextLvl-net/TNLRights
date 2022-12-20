@@ -1,32 +1,46 @@
-package net.nonswag.tnl.rights.api;
+package net.nonswag.tnl.rights.api.permissions;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.nonswag.core.api.annotation.FieldsAreNonnullByDefault;
+import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.core.api.file.formats.JsonFile;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
+import net.nonswag.tnl.rights.api.group.Group;
 import net.nonswag.tnl.rights.events.PermissionChangeEvent;
 import net.nonswag.tnl.rights.events.player.PlayerPermissionChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
 @FieldsAreNonnullByDefault
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class Permissions {
     private static final Map<UUID, Map<String, Boolean>> permissions = new HashMap<>();
     private static final JsonFile FILE = new JsonFile("plugins/Rights", "permissions.json");
+
+    public static Map<String, Boolean> getPermissions(TNLPlayer player) {
+        return getPermissions(player.getUniqueId());
+    }
 
     public static Map<String, Boolean> getPermissions(OfflinePlayer player) {
         return getPermissions(player.getUniqueId());
     }
 
     public static Map<String, Boolean> getPermissions(UUID uuid) {
-        if (!getPermissions().containsKey(uuid)) getPermissions().put(uuid, new HashMap<>());
-        return getPermissions().get(uuid);
+        Map<String, Boolean> permissions = new HashMap<>(Group.get(uuid).getPermissions());
+        permissions.putAll(permissions(uuid));
+        return permissions;
+    }
+
+    private static Map<String, Boolean> permissions(UUID uuid) {
+        if (!permissions.containsKey(uuid)) permissions.put(uuid, new HashMap<>());
+        return permissions.get(uuid);
     }
 
     public static List<String> getAllowedPermissions(OfflinePlayer player) {
@@ -58,9 +72,9 @@ public class Permissions {
     }
 
     public static void setPermissions(UUID uuid, Map<String, Boolean> permissions) {
-        getPermissions().put(uuid, permissions);
+        Permissions.permissions.put(uuid, permissions);
         TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
+        if (online != null) online.permissionManager().setPermissions(getPermissions(online));
     }
 
     public static boolean hasPermissions(OfflinePlayer player) {
@@ -68,7 +82,7 @@ public class Permissions {
     }
 
     public static boolean hasPermissions(UUID uuid) {
-        return getPermissions().containsKey(uuid) && !getPermissions(uuid).isEmpty();
+        return permissions.containsKey(uuid) && !getPermissions(uuid).isEmpty();
     }
 
     public static boolean hasPermission(OfflinePlayer player, String permission) {
@@ -92,12 +106,12 @@ public class Permissions {
     }
 
     public static void addPermission(UUID uuid, String permission, @Nullable CommandSource source) {
-        getPermissions(uuid).put(permission, true);
+        permissions(uuid).put(permission, true);
         if (source != null) {
             new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.GRANT, source).call();
         }
-        TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
+        TNLPlayer player = TNLPlayer.cast(uuid);
+        if (player != null) player.permissionManager().setPermissions(getPermissions(player));
     }
 
     public static void removePermission(OfflinePlayer player, String permission, @Nullable CommandSource source) {
@@ -105,12 +119,12 @@ public class Permissions {
     }
 
     public static void removePermission(UUID uuid, String permission, @Nullable CommandSource source) {
-        getPermissions(uuid).put(permission, false);
+        permissions(uuid).put(permission, false);
         if (source != null) {
             new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.REVOKE, source).call();
         }
-        TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
+        TNLPlayer player = TNLPlayer.cast(uuid);
+        if (player != null) player.permissionManager().setPermissions(getPermissions(player));
     }
 
     public static void unsetPermission(OfflinePlayer player, String permission, @Nullable CommandSource source) {
@@ -118,21 +132,17 @@ public class Permissions {
     }
 
     public static void unsetPermission(UUID uuid, String permission, @Nullable CommandSource source) {
-        getPermissions(uuid).remove(permission);
+        permissions(uuid).remove(permission);
         if (source != null) {
             new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.UNSET, source).call();
         }
-        TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.permissionManager().setPermissions(getPermissions(online.bukkit()));
-    }
-
-    public static Map<UUID, Map<String, Boolean>> getPermissions() {
-        return permissions;
+        TNLPlayer player = TNLPlayer.cast(uuid);
+        if (player != null) player.permissionManager().setPermissions(getPermissions(player));
     }
 
     public static void exportAll() {
         JsonObject root = new JsonObject();
-        getPermissions().forEach((uuid, permissions) -> {
+        permissions.forEach((uuid, permissions) -> {
             JsonObject individual = new JsonObject();
             JsonArray allowed = new JsonArray();
             JsonArray denied = new JsonArray();
@@ -153,23 +163,18 @@ public class Permissions {
         JsonObject root = FILE.getJsonElement().getAsJsonObject();
         for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
             String uuid = all.getUniqueId().toString();
-            if (root.has(uuid) && root.get(uuid).isJsonObject()) {
-                JsonObject object = root.getAsJsonObject(uuid);
-                HashMap<String, Boolean> individual = new HashMap<>();
-                if (object.has("allowed") && object.get("allowed").isJsonArray()) {
-                    for (JsonElement element : object.getAsJsonArray("allowed")) {
-                        individual.put(element.getAsString(), true);
-                    }
-                }
-                if (object.has("denied") && object.get("denied").isJsonArray()) {
-                    for (JsonElement element : object.getAsJsonArray("denied")) {
-                        individual.put(element.getAsString(), false);
-                    }
-                }
-                permissions.put(all.getUniqueId(), individual);
+            if (!root.has(uuid) || !root.get(uuid).isJsonObject()) continue;
+            JsonObject object = root.getAsJsonObject(uuid);
+            HashMap<String, Boolean> individual = new HashMap<>();
+            if (object.has("allowed") && object.get("allowed").isJsonArray()) {
+                object.getAsJsonArray("allowed").forEach(element -> individual.put(element.getAsString(), true));
             }
+            if (object.has("denied") && object.get("denied").isJsonArray()) {
+                object.getAsJsonArray("denied").forEach(element -> individual.put(element.getAsString(), false));
+            }
+            permissions.put(all.getUniqueId(), individual);
         }
-        getPermissions().putAll(permissions);
+        Permissions.permissions.putAll(permissions);
     }
 
     public static List<String> getAllPermissions(OfflinePlayer exclude) {
@@ -180,12 +185,9 @@ public class Permissions {
 
     public static List<String> getAllPermissions() {
         List<String> permissions = new ArrayList<>();
-        for (Map<String, Boolean> map : getPermissions().values()) {
-            for (String permission : map.keySet()) {
-                if (permissions.contains(permission)) continue;
-                permissions.add(permission);
-            }
-        }
+        Permissions.permissions.values().forEach(map -> map.keySet().forEach(permission -> {
+            if (!permissions.contains(permission)) permissions.add(permission);
+        }));
         return permissions;
     }
 }

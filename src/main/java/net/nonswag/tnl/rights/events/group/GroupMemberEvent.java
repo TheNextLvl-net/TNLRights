@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.tnl.listener.api.event.TNLEvent;
-import net.nonswag.tnl.rights.api.Group;
+import net.nonswag.tnl.rights.api.group.Group;
 
 import java.util.UUID;
 
