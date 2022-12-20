@@ -12,6 +12,7 @@ import net.nonswag.core.api.file.formats.JsonFile;
 import net.nonswag.core.api.logger.Logger;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.scoreboard.Team;
+import net.nonswag.tnl.rights.api.permissions.Permissions;
 import net.nonswag.tnl.rights.events.PermissionChangeEvent;
 import net.nonswag.tnl.rights.events.group.GroupMemberAddEvent;
 import net.nonswag.tnl.rights.events.group.GroupMemberRemoveEvent;
@@ -97,8 +98,8 @@ public class Group {
             root.add("permissions", new JsonObject());
         }
         JsonObject perms = root.getAsJsonObject("permissions");
-        if (!perms.has("allowed") || !perms.get("allowed").isJsonObject()) perms.add("allowed", new JsonArray());
-        if (!perms.has("denied") || !perms.get("denied").isJsonObject()) perms.add("denied", new JsonArray());
+        if (!perms.has("allowed") || !perms.get("allowed").isJsonArray()) perms.add("allowed", new JsonArray());
+        if (!perms.has("denied") || !perms.get("denied").isJsonArray()) perms.add("denied", new JsonArray());
         perms.getAsJsonArray("allowed").forEach(permission -> this.permissions.put(permission.getAsString(), true));
         perms.getAsJsonArray("denied").forEach(permission -> this.permissions.put(permission.getAsString(), false));
         if (!isDefault()) {
@@ -126,7 +127,7 @@ public class Group {
         root.add("permissions", permissions);
         if (!isDefault()) {
             JsonArray members = new JsonArray();
-            this.members.forEach(member -> members.add(members.toString()));
+            this.members.forEach(member -> members.add(member.toString()));
             root.add("members", members);
         }
         file.setJsonElement(root);
@@ -187,20 +188,27 @@ public class Group {
         return permissions.containsKey(permission);
     }
 
+    private void updatePermissions() {
+        getMembers().forEach(Permissions::update);
+    }
+
     public void addPermission(String permission, @Nullable CommandSource source) {
         permissions.put(permission, true);
+        updatePermissions();
         if (source == null) return;
         new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.GRANT, source).call();
     }
 
     public void removePermission(String permission, @Nullable CommandSource source) {
         permissions.put(permission, false);
+        updatePermissions();
         if (source == null) return;
         new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.REVOKE, source).call();
     }
 
     public void unsetPermission(String permission, @Nullable CommandSource source) {
         permissions.remove(permission);
+        updatePermissions();
         if (source == null) return;
         new GroupPermissionChangeEvent(this, permission, PermissionChangeEvent.Type.UNSET, source).call();
     }
@@ -212,6 +220,8 @@ public class Group {
     public void addPlayer(UUID player, @Nullable CommandSource source) {
         get(player).removePlayer(player, source);
         if (!isDefault()) members.add(player);
+        Permissions.update(player);
+        updateMembers();
         if (source != null) new GroupMemberAddEvent(this, player, source).call();
         updateMember(player);
     }
@@ -222,6 +232,7 @@ public class Group {
 
     public void removePlayer(UUID player, @Nullable CommandSource source) {
         members.remove(player);
+        Permissions.update(player);
         if (source != null) new GroupMemberRemoveEvent(this, player, source).call();
         get(player).updateMember(player);
     }

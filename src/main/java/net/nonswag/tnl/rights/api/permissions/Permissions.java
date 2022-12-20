@@ -24,6 +24,15 @@ public class Permissions {
     private static final Map<UUID, Map<String, Boolean>> permissions = new HashMap<>();
     private static final JsonFile FILE = new JsonFile("plugins/Rights", "permissions.json");
 
+    public static void update(UUID uuid) {
+        TNLPlayer player = TNLPlayer.cast(uuid);
+        if (player != null) update(player);
+    }
+
+    public static void update(TNLPlayer player) {
+        player.permissionManager().setPermissions(getPermissions(player));
+    }
+
     public static Map<String, Boolean> getPermissions(TNLPlayer player) {
         return getPermissions(player.getUniqueId());
     }
@@ -49,7 +58,7 @@ public class Permissions {
 
     public static List<String> getAllowedPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
-        getPermissions(uuid).forEach((permission, allowed) -> {
+        permissions(uuid).forEach((permission, allowed) -> {
             if (allowed) permissions.add(permission);
         });
         return permissions;
@@ -61,7 +70,7 @@ public class Permissions {
 
     public static List<String> getDeniedPermissions(UUID uuid) {
         List<String> permissions = new ArrayList<>();
-        getPermissions(uuid).forEach((permission, allowed) -> {
+        permissions(uuid).forEach((permission, allowed) -> {
             if (!allowed) permissions.add(permission);
         });
         return permissions;
@@ -73,8 +82,8 @@ public class Permissions {
 
     public static void setPermissions(UUID uuid, Map<String, Boolean> permissions) {
         Permissions.permissions.put(uuid, permissions);
-        TNLPlayer online = TNLPlayer.cast(uuid);
-        if (online != null) online.permissionManager().setPermissions(getPermissions(online));
+        TNLPlayer player = TNLPlayer.cast(uuid);
+        if (player != null) update(player);
     }
 
     public static boolean hasPermissions(OfflinePlayer player) {
@@ -111,7 +120,7 @@ public class Permissions {
             new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.GRANT, source).call();
         }
         TNLPlayer player = TNLPlayer.cast(uuid);
-        if (player != null) player.permissionManager().setPermissions(getPermissions(player));
+        if (player != null) update(player);
     }
 
     public static void removePermission(OfflinePlayer player, String permission, @Nullable CommandSource source) {
@@ -124,7 +133,7 @@ public class Permissions {
             new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.REVOKE, source).call();
         }
         TNLPlayer player = TNLPlayer.cast(uuid);
-        if (player != null) player.permissionManager().setPermissions(getPermissions(player));
+        if (player != null) update(player);
     }
 
     public static void unsetPermission(OfflinePlayer player, String permission, @Nullable CommandSource source) {
@@ -137,7 +146,7 @@ public class Permissions {
             new PlayerPermissionChangeEvent(uuid, permission, PermissionChangeEvent.Type.UNSET, source).call();
         }
         TNLPlayer player = TNLPlayer.cast(uuid);
-        if (player != null) player.permissionManager().setPermissions(getPermissions(player));
+        if (player != null) update(player);
     }
 
     public static void exportAll() {

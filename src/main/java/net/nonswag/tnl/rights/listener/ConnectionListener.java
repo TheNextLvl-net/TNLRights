@@ -13,7 +13,7 @@ public class ConnectionListener implements Listener {
 
     @EventHandler
     public void onJoin(TNLPlayerJoinEvent event) {
-        event.getPlayer().permissionManager().setPermissions(Permissions.getPermissions(event.getPlayer()));
+        Permissions.update(event.getPlayer());
         Group.get(event.getPlayer()).updateMember(event.getPlayer().getUniqueId());
     }
 }
