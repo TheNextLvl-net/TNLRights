@@ -1,5 +1,5 @@
 name: "TNLRights"
-version: "1.0"
+version: "2.0.0"
 main: "net.nonswag.tnl.rights.Rights"
 website: "https://www.thenextlvl.net"
 api-version: "1.19"

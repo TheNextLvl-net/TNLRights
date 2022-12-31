@@ -3,9 +3,7 @@ package net.nonswag.tnl.rights;
 import net.nonswag.core.api.annotation.FieldsAreNullableByDefault;
 import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.tnl.listener.Listener;
-import net.nonswag.tnl.listener.api.plugin.PluginUpdate;
 import net.nonswag.tnl.listener.api.plugin.TNLPlugin;
-import net.nonswag.tnl.listener.api.settings.Settings;
 import net.nonswag.tnl.rights.api.file.Config;
 import net.nonswag.tnl.rights.api.group.Group;
 import net.nonswag.tnl.rights.api.permissions.Permissions;
@@ -31,9 +29,6 @@ public class Rights extends TNLPlugin {
         Messages.init();
         registerListeners();
         Listener.getOnlinePlayers().forEach(all -> Group.get(all).updateMember(all));
-        async(() -> {
-            if (Settings.AUTO_UPDATER.getValue()) new PluginUpdate(this).downloadUpdate();
-        });
     }
 
     @Override
