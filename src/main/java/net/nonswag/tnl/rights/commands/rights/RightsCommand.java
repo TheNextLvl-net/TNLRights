@@ -1,9 +1,10 @@
-package net.nonswag.tnl.rights.commands;
+package net.nonswag.tnl.rights.commands.rights;
 
 import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
 import net.nonswag.core.api.command.Invocation;
 import net.nonswag.tnl.listener.api.command.TNLCommand;
+import net.nonswag.tnl.listener.api.command.simple.SimpleCommand;
 import net.nonswag.tnl.rights.api.permissions.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -14,10 +15,12 @@ import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RightsCommand extends TNLCommand {
+public class RightsCommand extends SimpleCommand {
 
     public RightsCommand() {
         super("rights", "tnl.rights");
+        addSubCommand(new Add());
+        addSubCommand(new Remove());
     }
 
     @Override
@@ -26,17 +29,6 @@ public class RightsCommand extends TNLCommand {
         String[] args = invocation.arguments();
         if (args.length >= 1) {
             if (args[0].equalsIgnoreCase("add")) {
-                if (args.length >= 2 && !args[1].isEmpty()) {
-                    OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);
-                    if (arg != null) {
-                        if (args.length >= 3) {
-                            if (!Permissions.hasPermission(arg, args[2])) {
-                                Permissions.addPermission(arg, args[2], source);
-                                source.sendMessage("%prefix% §6" + arg.getName() + "§a now has §6" + args[2] + "§a permission");
-                            } else source.sendMessage("%prefix% §cNothing could be changed");
-                        } else source.sendMessage("%prefix% §c/rights add " + arg.getName() + " §8[§6Permission§8]");
-                    } else source.sendMessage("%prefix% §c/rights add §8[§6Player§8] §8[§6Permission§8]");
-                } else source.sendMessage("%prefix% §c/rights add §8[§6Player§8] §8[§6Permission§8]");
             } else if (args[0].equalsIgnoreCase("remove")) {
                 if (args.length >= 2 && !args[1].isEmpty()) {
                     OfflinePlayer arg = Bukkit.getOfflinePlayerIfCached(args[1]);

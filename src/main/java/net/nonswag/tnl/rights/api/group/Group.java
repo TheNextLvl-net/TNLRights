@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import net.nonswag.core.api.annotation.FieldsAreNonnullByDefault;
 import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
@@ -12,6 +14,8 @@ import net.nonswag.core.api.file.formats.JsonFile;
 import net.nonswag.core.api.logger.Logger;
 import net.nonswag.tnl.listener.api.player.TNLPlayer;
 import net.nonswag.tnl.listener.api.scoreboard.Team;
+import net.nonswag.tnl.rights.api.errors.GroupException;
+import net.nonswag.tnl.rights.api.errors.InvalidGroupNameException;
 import net.nonswag.tnl.rights.api.permissions.Permissions;
 import net.nonswag.tnl.rights.events.PermissionChangeEvent;
 import net.nonswag.tnl.rights.events.group.GroupMemberAddEvent;
@@ -26,6 +30,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.util.*;
 
+@ToString
+@EqualsAndHashCode
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -62,14 +68,27 @@ public class Group {
     private final Map<String, Boolean> permissions = new HashMap<>();
     private final List<UUID> members = new ArrayList<>();
     private final JsonFile file;
+    @Getter
+    @Nullable
+    private net.nonswag.core.api.object.Getter<Group> child, parent;
 
-    public Group(String name) {
-        if (name.isEmpty()) throw new IllegalArgumentException("name is empty");
-        if (!name.matches("\\w*")) throw new IllegalArgumentException("'" + name.replaceAll("\\w*", "") + "'");
+    public Group(String name) throws GroupException {
+        if (name.isEmpty()) throw new InvalidGroupNameException("name cannot be empty");
+        if (!name.matches("\\w*")) throw new InvalidGroupNameException("'" + name.replaceAll("\\w*", "") + "'");
         this.name = name;
         this.file = new JsonFile("plugins/Rights/Groups", getName() + ".json");
         this.team = name.equals("default") ? Team.NONE : new Team(loadId());
         load();
+    }
+
+    public boolean setChild(@Nullable Group child) {
+        if (equals(child) || Objects.equals(child, this.child != null ? this.child.get() : null)) return false;
+        return (this.child = child != null ? () -> child : null) == null || child.setParent(this);
+    }
+
+    public boolean setParent(@Nullable Group parent) {
+        if (equals(parent) || Objects.equals(parent, this.parent != null ? this.parent.get() : null)) return false;
+        return (this.parent = parent != null ? () -> parent : null) == null || parent.setChild(this);
     }
 
     private int loadId() {
@@ -114,6 +133,8 @@ public class Group {
         root.addProperty("prefix", getTeam().getPrefix());
         root.addProperty("suffix", getTeam().getSuffix());
         root.addProperty("color", getTeam().getColor().name());
+        if (getParent() != null) root.addProperty("parent", getParent().get().getName());
+        if (getChild() != null) root.addProperty("child", getChild().get().getName());
         if (!isDefault()) root.addProperty("id", getTeam().getId());
         JsonObject permissions = new JsonObject();
         JsonArray allowedPermissions = new JsonArray();

@@ -1,4 +1,4 @@
-package net.nonswag.tnl.rights.commands;
+package net.nonswag.tnl.rights.commands.group;
 
 import net.nonswag.core.api.annotation.MethodsReturnNonnullByDefault;
 import net.nonswag.core.api.command.CommandSource;
@@ -212,22 +212,6 @@ public class GroupCommand extends TNLCommand {
                 source.sendMessage("%prefix% §7Groups §8(§a" + groups.size() + "§8): §6" + String.join("§8, §6", groups));
             } else help(source);
         } else help(source);
-    }
-
-    private void help(CommandSource source) {
-        source.sendMessage("%prefix% §c/group members remove §8[§6Group§8] §8[§6Member§8]");
-        source.sendMessage("%prefix% §c/group members add §8[§6Group§8] §8[§6Player§8]");
-        source.sendMessage("%prefix% §c/group members list §8[§6Group§8]");
-        source.sendMessage("%prefix% §c/group rights disallow §8[§6Group§8] §8[§6Permission§8]");
-        source.sendMessage("%prefix% §c/group rights remove §8[§6Group§8] §8[§6Permission§8]");
-        source.sendMessage("%prefix% §c/group rights add §8[§6Group§8] §8[§6Permission§8]");
-        source.sendMessage("%prefix% §c/group rights list §8[§6Group§8]");
-        source.sendMessage("%prefix% §c/group prefix §8[§6Group§8] §8[§6Prefix§8]");
-        source.sendMessage("%prefix% §c/group suffix §8[§6Group§8] §8[§6Suffix§8]");
-        source.sendMessage("%prefix% §c/group color §8[§6Group§8] §8[§6Color§8]");
-        source.sendMessage("%prefix% §c/group delete §8[§6Group§8]");
-        source.sendMessage("%prefix% §c/group create §8[§6Name§8]");
-        source.sendMessage("%prefix% §c/group list");
     }
 
     @Override
