@@ -163,13 +163,12 @@ public class Permissions {
             individual.add("denied", denied);
             root.add(uuid.toString(), individual);
         });
-        FILE.setJsonElement(root);
-        FILE.save();
+        FILE.setRoot(root).save();
     }
 
     public static void loadAll() {
         HashMap<UUID, HashMap<String, Boolean>> permissions = new HashMap<>();
-        JsonObject root = FILE.getJsonElement().getAsJsonObject();
+        JsonObject root = FILE.getRoot().getAsJsonObject();
         for (OfflinePlayer all : Bukkit.getOfflinePlayers()) {
             String uuid = all.getUniqueId().toString();
             if (!root.has(uuid) || !root.get(uuid).isJsonObject()) continue;

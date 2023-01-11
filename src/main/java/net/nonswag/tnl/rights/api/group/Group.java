@@ -74,13 +74,13 @@ public class Group {
 
     private int loadId() {
         if (isDefault()) return Integer.MAX_VALUE;
-        JsonObject root = file.getJsonElement().getAsJsonObject();
+        JsonObject root = file.getRoot().getAsJsonObject();
         if (!root.has("id")) return Team.NONE.getId() - (getGroups().size() + 1);
         return root.get("id").getAsInt();
     }
 
     protected void load() {
-        JsonObject root = file.getJsonElement().getAsJsonObject();
+        JsonObject root = file.getRoot().getAsJsonObject();
         if (!root.has("prefix")) root.addProperty("prefix", getTeam().getPrefix());
         if (!root.has("suffix")) root.addProperty("suffix", getTeam().getSuffix());
         if (!root.has("color")) root.addProperty("color", getTeam().getColor().name());
@@ -130,8 +130,7 @@ public class Group {
             this.members.forEach(member -> members.add(member.toString()));
             root.add("members", members);
         }
-        file.setJsonElement(root);
-        file.save();
+        file.setRoot(root).save();
     }
 
     public boolean delete() {

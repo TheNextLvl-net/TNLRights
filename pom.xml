@@ -30,7 +30,7 @@
     <distributionManagement>
         <repository>
             <id>releases</id>
-            <url>https://repo.thenextlvl.net/repository/maven-public/</url>
+            <url>https://repo.thenextlvl.net/releases</url>
         </repository>
     </distributionManagement>
 
@@ -47,7 +47,7 @@
         </repository>
         <repository>
             <id>releases</id>
-            <url>https://repo.thenextlvl.net/repository/maven-public</url>
+            <url>https://repo.thenextlvl.net/releases</url>
         </repository>
     </repositories>
 
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>net.nonswag.tnl</groupId>
             <artifactId>listener</artifactId>
-            <version>6.3.0</version>
+            <version>6.3.3</version>
         </dependency>
     </dependencies>
 </project>
